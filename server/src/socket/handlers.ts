@@ -19,7 +19,8 @@ export const registerSocketHandlers = (io: Server<ClientToServerEvents, ServerTo
     })
 
     socket.on("submit_guess", (guess) => {
-      // const roomId = [...socket.rooms].find(r => r !== socket.id)
+      const roomId = [...socket.rooms].find(r => r !== socket.id)
+      io.to(roomId || "").emit("broadcast", `guess made by ${socket.id}`)
       socket.emit("broadcast", `${guess} guess received`)
       console.log(socket.id, guess)
     })

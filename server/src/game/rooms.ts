@@ -8,12 +8,11 @@ class RoomsManager {
   private rooms = new Map<string, Room>()
 
   public createRoom(playerId: string) {
-    // const roomId = Math.random().toString(36).substring(2, 8)
-    const roomId = "aaaaaa"
+    const roomId = Math.random().toString(36).substring(2, 8)
 
     this.rooms.set(roomId, {
       id: roomId,
-      players: [playerId],
+      players: [],
       word: "Raios"
     })
 
@@ -24,6 +23,7 @@ class RoomsManager {
     const room = this.rooms.get(roomId)
 
     if (!room) return
+    if (room.players.includes(playerId)) return
 
     room.players.push(playerId)
 
