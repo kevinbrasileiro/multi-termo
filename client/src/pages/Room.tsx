@@ -6,7 +6,6 @@ export default function Room() {
   const [guess, setGuess] = useState("")
   const params = useParams()
 
-
   useEffect(() => {
     socket.on("broadcast", (message) => {
       console.log(message)
@@ -14,7 +13,6 @@ export default function Room() {
 
     if (params.roomId) {
       socket.emit("join_room", params.roomId)
-      console.log("joining room", params.roomId)
     }
 
     return () => {

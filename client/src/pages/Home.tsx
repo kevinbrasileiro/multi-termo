@@ -10,13 +10,8 @@ export default function App() {
       navigate(`/room/${roomId}`)
     })
 
-    socket.on("broadcast", (message) => {
-      console.log(message)
-    })
-
     return () => {
       socket.off("room_created")
-      socket.off("broadcast")
     }
   }, [navigate])
 
@@ -24,15 +19,8 @@ export default function App() {
     socket.emit("create_room")
   }
 
-  const joinRoom = () => {
-    socket.emit("join_room", "aaaaaa")
-  }
-
   return (
-    <>
-      <button onClick={createRoom}>Create Room</button>
-      <button onClick={joinRoom}>Join Room</button>
-    </>
+    <button onClick={createRoom}>Create Room</button>
   )
 }
 

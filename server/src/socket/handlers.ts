@@ -1,5 +1,5 @@
 import type { Server, Socket } from "socket.io";
-import type { ClientToServerEvents, ServerToClientEvents } from "../types/socketEvents.js";
+import type { ClientToServerEvents, ServerToClientEvents } from "./socketEvents.js";
 import { roomsManager } from "../game/rooms.js";
 
 export const registerSocketHandlers = (io: Server<ClientToServerEvents, ServerToClientEvents>) => {
@@ -8,7 +8,6 @@ export const registerSocketHandlers = (io: Server<ClientToServerEvents, ServerTo
 
     socket.on("create_room", () => {
       const roomId = roomsManager.createRoom(socket.id)
-      socket.join(roomId)
       socket.emit("room_created", roomId)
     })
 

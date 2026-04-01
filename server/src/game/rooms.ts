@@ -2,6 +2,8 @@ export type Room = {
   id: string
   players: string[]
   word: string
+  playerGuesses: Record<string, string[]>
+  status: "waiting" | "playing" | "finished"
 }
 
 class RoomsManager {
@@ -13,7 +15,9 @@ class RoomsManager {
     this.rooms.set(roomId, {
       id: roomId,
       players: [],
-      word: "Raios"
+      word: "Raios",
+      playerGuesses: {},
+      status: "waiting"
     })
 
     return roomId
@@ -28,6 +32,13 @@ class RoomsManager {
     room.players.push(playerId)
 
     return room
+  }
+
+  addGuess(playerId: string, roomId: string , guess: string) {
+    const room = this.rooms.get(roomId)
+
+    if (!room) return
+    room.playerGuesses[playerId]?.push(guess)
   }
 }
 
