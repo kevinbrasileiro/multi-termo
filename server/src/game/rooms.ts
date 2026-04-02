@@ -1,3 +1,5 @@
+import { evaluateGuess, type GuessResult } from "./wordle.js"
+
 export type Room = {
   id: string
   players: string[]
@@ -9,36 +11,50 @@ export type Room = {
 class RoomsManager {
   private rooms = new Map<string, Room>()
 
-  public createRoom(playerId: string) {
+  public getRoom(roomId: string) {
+    return this.rooms.get(roomId)
+  }
+
+  public createRoom(playerId: string): string {
     const roomId = Math.random().toString(36).substring(2, 8)
 
     this.rooms.set(roomId, {
       id: roomId,
-      players: [],
-      word: "Raios",
+      players: [playerId],
+      word: "RAIOS",
       playerGuesses: {},
       status: "waiting"
     })
 
+    console.log(`${roomId} created`)
+    console.dir(this.rooms)
     return roomId
   }
 
-  joinRoom(playerId: string, roomId: string) {
+  public joinRoom(playerId: string, roomId: string) {
     const room = this.rooms.get(roomId)
-
     if (!room) return
+
     if (room.players.includes(playerId)) return
 
     room.players.push(playerId)
-
-    return room
+    console.log(`${playerId} joined ${room.id}`)
+    console.dir(this.rooms)
   }
 
-  addGuess(playerId: string, roomId: string , guess: string) {
+  public submitGuess(playerId: string, roomId: string , guess: string): GuessResult {
     const room = this.rooms.get(roomId)
+    if (!room) return []
 
-    if (!room) return
-    room.playerGuesses[playerId]?.push(guess)
+    if (!room.playerGuesses[playerId]) {
+      room.playerGuesses[playerId] = []
+    }
+
+    room.playerGuesses[playerId].push(guess)
+    
+    console.log(`${playerId}@${room.id} guessed ${guess}`)
+    console.dir(this.rooms)
+    return evaluateGuess(guess, room.word)
   }
 }
 

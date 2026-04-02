@@ -1,9 +1,12 @@
+import type { GuessResult } from "../game/wordle.ts";
+
 export interface ServerToClientEvents {
-  broadcast: (message: string) => void;
+  broadcast: (message: string) => void
 
   room_created: (roomId: string) => void;
-
-  guess_result: (result: string) => void;
+  
+  guess_result: (result: GuessResult) => void;
+  guess_received: (playerId: string) => void;
 }
 
 export interface ClientToServerEvents {
