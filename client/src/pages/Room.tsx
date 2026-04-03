@@ -48,7 +48,7 @@ export default function Room() {
         {playerGuesses?.map((guess, i) => (
           <div key={i}>
             {guess.map((letter, j) => (
-              <span key={j}> {letter.value}</span>
+              <span key={j}> {letter.letter}</span>
             ))}
           </div>
         ))}

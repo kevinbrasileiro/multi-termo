@@ -21,7 +21,7 @@ class RoomsManager {
     this.rooms.set(roomId, {
       id: roomId,
       players: [playerId],
-      word: "RAIOS",
+      word: "MESMA",
       playerGuesses: {},
       status: "waiting"
     })
