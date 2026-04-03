@@ -38,18 +38,42 @@ export default function Room() {
 
   const submitGuess = () => {
     socket.emit("submit_guess", guess)
+    setGuess("")
   }
 
   return (
     <div>
       <input type="text" value={guess} onChange={(e) => setGuess(e.target.value)}/>
       <button onClick={submitGuess}>Guess</button>
-      <div>
+      <div style={{ marginTop: "8px" }}>
         {playerGuesses?.map((guess, i) => (
-          <div key={i}>
-            {guess.map((letter, j) => (
-              <span key={j}> {letter.letter}</span>
-            ))}
+          <div key={i} style={{ display: "flex", gap: "4px", marginBottom: "4px" }}>
+            {guess.map((letter, j) => {
+              const bgColor =
+                letter.result === "correct"
+                  ? "green"
+                  : letter.result === "present"
+                  ? "gold"
+                  : "gray";
+
+              return (
+                <span
+                  key={j}
+                  style={{
+                    width: "40px",
+                    height: "40px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    backgroundColor: bgColor,
+                    color: "white",
+                    fontWeight: "bold",
+                  }}
+                >
+                  {letter.letter}
+                </span>
+              );
+            })}
           </div>
         ))}
       </div>

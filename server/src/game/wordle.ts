@@ -1,8 +1,11 @@
+import { readFileSync } from "node:fs";
+import path from "path";
+
 export type GuessResult = {letter: string, result: "correct" | "present" | "wrong"}[]
 
 export const evaluateGuess = (guess: string, targetWord: string): GuessResult => {
-  const splitGuess = guess.toUpperCase().split("")
-  const splitTargetWord = targetWord.toUpperCase().split("")
+  const splitGuess = guess.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().split("")
+  const splitTargetWord = targetWord.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().split("")
   const result: GuessResult = []
 
   const frequencies: Record<string, number> = {}
@@ -34,4 +37,12 @@ export const evaluateGuess = (guess: string, targetWord: string): GuessResult =>
   })
 
   return result
-} 
+}
+
+const filePath = path.resolve("src/resources/wordlist.txt")
+const wordList = readFileSync(filePath, "utf-8").split("\n")
+
+export function generateRandomWord() {
+    const randomIndex = Math.floor(Math.random() * wordList.length)
+    return wordList[randomIndex] ?? "";
+}

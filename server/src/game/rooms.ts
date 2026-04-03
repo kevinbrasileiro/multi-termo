@@ -1,4 +1,4 @@
-import { evaluateGuess, type GuessResult } from "./wordle.js"
+import { evaluateGuess, generateRandomWord, type GuessResult } from "./wordle.js"
 
 export type Room = {
   id: string
@@ -21,7 +21,7 @@ class RoomsManager {
     this.rooms.set(roomId, {
       id: roomId,
       players: [playerId],
-      word: "MESMA",
+      word: generateRandomWord(),
       playerGuesses: {},
       status: "waiting"
     })
