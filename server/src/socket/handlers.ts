@@ -16,6 +16,13 @@ export const registerSocketHandlers = (io: Server<ClientToServerEvents, ServerTo
       const room = roomsManager.getRoom(roomId)
       if (!room || room.players.length >= 2) return
       roomsManager.joinRoom(socket.id, roomId)
+      
+      socket.rooms.forEach((room) => {
+        if (room !== socket.id) {
+          socket.leave(room)
+        }
+      })
+      
       socket.join(roomId)
     })
 
