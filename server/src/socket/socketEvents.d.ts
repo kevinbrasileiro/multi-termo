@@ -5,8 +5,8 @@ export interface ServerToClientEvents {
 
   room_created: (roomId: string) => void;
   
-  guess_result: (result: GuessResult) => void;
-  guess_received: (playerId: string) => void;
+  guess_result: (result: GuessResult[]) => void;
+  opponent_guess: (amount: number) => void;
 }
 
 export interface ClientToServerEvents {

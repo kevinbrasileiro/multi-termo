@@ -19,21 +19,20 @@ export default function Room() {
       socket.emit("join_room", params.roomId)
     }
 
-    socket.on("guess_result", (result: GuessResult) => {
-      setPlayerGuesses(prev => [...prev, result])
-      console.log(result)
+    socket.on("guess_result", (playerGuesses: GuessResult[]) => {
+      setPlayerGuesses(playerGuesses)
+      console.log(playerGuesses)
     })
 
-    socket.on("guess_received", (playerId: string) => {
-      console.log(`${playerId} sent a guess`)
-      if (playerId === socket.id) return
-      setOpponentGuessAmount(prev => prev + 1)
+    socket.on("opponent_guess", (amount: number) => {
+      console.log(`opponent has sent ${amount} guesses`)
+      setOpponentGuessAmount(amount)
     })
 
     return () => {
       socket.off("broadcast")
       socket.off("guess_result")
-      socket.off("guess_received")
+      socket.off("opponent_guess")
     }
   }, [params.roomId])
 

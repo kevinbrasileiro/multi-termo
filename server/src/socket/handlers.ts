@@ -22,11 +22,12 @@ export const registerSocketHandlers = (io: Server<ClientToServerEvents, ServerTo
     socket.on("submit_guess", (guess) => {
       const roomId = [...socket.rooms].find(r => r !== socket.id)
       if (!roomId) return
-      
-      const result = roomsManager.submitGuess(socket.id, roomId, guess)
 
-      socket.emit("guess_result", result)
-      io.to(roomId).emit("guess_received", socket.id)
+      const playerGuesses = roomsManager.submitGuess(socket.id, roomId, guess)
+      const opponentId = roomsManager.getOpponentId(socket.id, roomId) ?? ""
+
+      socket.emit("guess_result", playerGuesses)
+      io.to(opponentId).emit("opponent_guess", playerGuesses.length)
     })
   })
 }

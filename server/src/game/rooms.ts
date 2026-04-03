@@ -4,18 +4,18 @@ export type Room = {
   id: string
   players: string[]
   word: string
-  playerGuesses: Record<string, string[]>
+  playerGuesses: Record<string, GuessResult[]>
   status: "waiting" | "playing" | "finished"
 }
 
 class RoomsManager {
   private rooms = new Map<string, Room>()
 
-  public getRoom(roomId: string) {
+  getRoom(roomId: string) {
     return this.rooms.get(roomId)
   }
 
-  public createRoom(playerId: string): string {
+  createRoom(playerId: string): string {
     const roomId = Math.random().toString(36).substring(2, 8)
 
     this.rooms.set(roomId, {
@@ -31,7 +31,7 @@ class RoomsManager {
     return roomId
   }
 
-  public joinRoom(playerId: string, roomId: string) {
+  joinRoom(playerId: string, roomId: string) {
     const room = this.rooms.get(roomId)
     if (!room) return
 
@@ -42,7 +42,7 @@ class RoomsManager {
     console.dir(this.rooms)
   }
 
-  public submitGuess(playerId: string, roomId: string , guess: string): GuessResult {
+  submitGuess(playerId: string, roomId: string , guess: string): GuessResult[] {
     const room = this.rooms.get(roomId)
     if (!room) return []
 
@@ -50,11 +50,24 @@ class RoomsManager {
       room.playerGuesses[playerId] = []
     }
 
-    room.playerGuesses[playerId].push(guess)
+    // TODO: add guess validation
+
+    const result = evaluateGuess(guess, room.word)
+    room.playerGuesses[playerId].push(result)
     
     console.log(`${playerId}@${room.id} guessed ${guess}`)
     console.dir(this.rooms)
-    return evaluateGuess(guess, room.word)
+    return room.playerGuesses[playerId]
+  }
+
+  getOpponentId(playerId: string, roomId: string) {
+    const room = this.rooms.get(roomId)
+    if (!room) return 
+
+    const opponentId = room.players.find(p => p !== playerId)
+    if (!opponentId) return
+
+    return opponentId
   }
 }
 
