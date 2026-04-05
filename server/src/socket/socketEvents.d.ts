@@ -17,7 +17,7 @@ export interface ClientToServerEvents {
   create_room: (callback: (roomId: string) => void) => void;
   join_room: (roomId: string, callback: (res: Response) => void) => void;
 
-  submit_guess: (guess: string, callback: (guesses: GuessResult[]) => void) => void;
+  submit_guess: (guess: string, callback: (res: Response & {guesses: GuessResult[]}) => void) => void
 }
 
 // export interface InterServerEvents {

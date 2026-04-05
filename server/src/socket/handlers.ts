@@ -33,10 +33,12 @@ export const registerSocketHandlers = (io: Server<ClientToServerEvents, ServerTo
       const roomId = [...socket.rooms].find(r => r !== socket.id)
       if (!roomId) return
 
-      const playerGuesses = roomsManager.submitGuess(socket.id, roomId, guess)
-
-      callback(playerGuesses)
-      socket.to(roomId).emit("opponent_guess", playerGuesses.length)
+      const result = roomsManager.submitGuess(socket.id, roomId, guess)
+      callback(result)
+      
+      if (result.status === "ok") {
+        socket.to(roomId).emit("opponent_guess", result.guesses.length)
+      }
     })
   })
 }

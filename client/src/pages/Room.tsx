@@ -49,9 +49,13 @@ export default function Room() {
 
   const submitGuess = (guess: string) => {
     socket.emit("submit_guess", guess, (response) => {
-      setPlayerGuesses(response)
+      if (response.status === "error") {
+        return console.error(response.errorMessage)
+      }
+      setPlayerGuesses(response.guesses)
+      setCurrentGuess("")
+      setCursorIndex(0)
     })
-    setCurrentGuess("")
   }
 
   useEffect(() => {
@@ -71,7 +75,6 @@ export default function Room() {
         setCursorIndex((prev) => Math.max(0, prev - 1))
       } else if (e.key === "Enter") {
         submitGuess(guessRef.current)
-        setCursorIndex(0)
       } 
       else if (e.key.length === 1) {
         setCurrentGuess((prev) => {
@@ -92,7 +95,7 @@ export default function Room() {
   }, [])
 
   return (
-    <div className="w-full h-full">
+    <div className="w-screen h-screen flex justify-center items-center">
       <Board 
         playerGuesses={playerGuesses} 
         currentGuess={currentGuess} 

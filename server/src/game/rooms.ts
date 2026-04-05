@@ -1,4 +1,5 @@
-import { evaluateGuess, generateRandomWord, type GuessResult } from "./wordle.js"
+import type { Response } from "../socket/socketEvents.js"
+import { evaluateGuess, generateRandomWord, guessIsInWordList, type GuessResult } from "./wordle.js"
 
 export type Room = {
   id: string
@@ -44,22 +45,36 @@ class RoomsManager {
     return true
   }
 
-  submitGuess(playerId: string, roomId: string , guess: string): GuessResult[] {
+  submitGuess(playerId: string, roomId: string , guess: string): Response & {guesses: GuessResult[]}  {
     const room = this.rooms.get(roomId)
-    if (!room) return []
+    if (!room) return {
+      status: "error",
+      errorMessage: "Not in a room",
+      guesses: []
+    }
 
     if (!room.playerGuesses[playerId]) {
       room.playerGuesses[playerId] = []
     }
 
-    // TODO: add guess validation
+    if (guess.length !== 5) {
+      return { status: "error", errorMessage: "Invalid length", guesses: room.playerGuesses[playerId] }
+    }
+
+    if (!guessIsInWordList(guess)) {
+      return { status: "error", errorMessage: "Word cannot be accepted", guesses: room.playerGuesses[playerId]}
+    }
 
     const result = evaluateGuess(guess, room.word)
     room.playerGuesses[playerId].push(result)
     
     console.log(`${playerId}@${room.id} guessed ${guess}`)
     console.dir(this.rooms)
-    return room.playerGuesses[playerId]
+
+    return {
+      status: "ok",
+      guesses: room.playerGuesses[playerId]
+    }
   }
 }
 

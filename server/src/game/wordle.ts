@@ -43,6 +43,10 @@ const filePath = path.resolve("src/resources/wordlist.txt")
 const wordList = readFileSync(filePath, "utf-8").split("\n")
 
 export function generateRandomWord() {
-    const randomIndex = Math.floor(Math.random() * wordList.length)
-    return wordList[randomIndex] ?? "";
+  const randomIndex = Math.floor(Math.random() * wordList.length)
+  return wordList[randomIndex] ?? "";
+}
+
+export function guessIsInWordList(guess: string): boolean {
+  return wordList.includes(guess.toLowerCase())
 }
