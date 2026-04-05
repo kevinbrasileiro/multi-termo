@@ -1,21 +1,23 @@
 import type { GuessResult } from "../game/wordle.ts";
 
+export type Response = {
+  status: "ok" | "error"
+  errorMessage?: string
+}
+
 export interface ServerToClientEvents {
   broadcast: (message: string) => void
-
-  room_created: (roomId: string) => void;
   
-  guess_result: (result: GuessResult[]) => void;
   opponent_guess: (amount: number) => void;
 }
 
 export interface ClientToServerEvents {
   ping: () => void;
 
-  create_room: () => void;
-  join_room: (roomId: string) => void;
+  create_room: (callback: (roomId: string) => void) => void;
+  join_room: (roomId: string, callback: (res: Response) => void) => void;
 
-  submit_guess: (guess: string) => void;
+  submit_guess: (guess: string, callback: (guesses: GuessResult[]) => void) => void;
 }
 
 // export interface InterServerEvents {

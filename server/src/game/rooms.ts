@@ -31,15 +31,17 @@ class RoomsManager {
     return roomId
   }
 
-  joinRoom(playerId: string, roomId: string) {
+  joinRoom(playerId: string, roomId: string): boolean {
     const room = this.rooms.get(roomId)
-    if (!room) return
+    if (!room) return false
 
-    if (room.players.includes(playerId)) return
-
-    room.players.push(playerId)
-    console.log(`${playerId} joined ${room.id}`)
-    console.dir(this.rooms)
+    if (!room.players.includes(playerId)) {    
+      room.players.push(playerId)
+      console.log(`${playerId} joined ${room.id}`)
+      console.dir(this.rooms)
+    }
+    
+    return true
   }
 
   submitGuess(playerId: string, roomId: string , guess: string): GuessResult[] {
@@ -58,16 +60,6 @@ class RoomsManager {
     console.log(`${playerId}@${room.id} guessed ${guess}`)
     console.dir(this.rooms)
     return room.playerGuesses[playerId]
-  }
-
-  getOpponentId(playerId: string, roomId: string) {
-    const room = this.rooms.get(roomId)
-    if (!room) return 
-
-    const opponentId = room.players.find(p => p !== playerId)
-    if (!opponentId) return
-
-    return opponentId
   }
 }
 

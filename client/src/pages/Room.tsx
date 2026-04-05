@@ -1,10 +1,8 @@
 import { useEffect, useRef, useState } from "react"
 import { socket } from "../socket"
-import { useParams } from "react-router"
+import { useNavigate, useParams } from "react-router"
 import type { GuessResult } from "../../../server/src/game/wordle"
 import Board from "../components/Board"
-
-
 
 export default function Room() {
   const [currentGuess, setCurrentGuess] = useState("")
@@ -14,6 +12,7 @@ export default function Room() {
   const [opponentGuessAmount, setOpponentGuessAmount] = useState(0)
 
   const params = useParams()
+  const navigate = useNavigate()
 
   const cursorRef = useRef(cursorIndex)
   const guessRef = useRef(currentGuess)
@@ -24,19 +23,17 @@ export default function Room() {
   }, [cursorIndex, currentGuess])
 
   useEffect(() => {
-    if (params.roomId) {
-      socket.emit("join_room", params.roomId)
-    }
-  }, [params.roomId])
+    socket.emit("join_room", params.roomId ?? "", (response) => {
+      if (response.status === "error") {
+        console.error(response.errorMessage)
+        navigate("/")
+      }
+    })
+  }, [params.roomId, navigate])
 
   useEffect(() => {
     socket.on("broadcast", (message) => {
       console.log(message)
-    })
-
-    socket.on("guess_result", (playerGuesses: GuessResult[]) => {
-      setPlayerGuesses(playerGuesses)
-      console.log(playerGuesses)
     })
 
     socket.on("opponent_guess", (amount: number) => {
@@ -46,13 +43,14 @@ export default function Room() {
 
     return () => {
       socket.off("broadcast")
-      socket.off("guess_result")
       socket.off("opponent_guess")
     }
   })
 
   const submitGuess = (guess: string) => {
-    socket.emit("submit_guess", guess)
+    socket.emit("submit_guess", guess, (response) => {
+      setPlayerGuesses(response)
+    })
     setCurrentGuess("")
   }
 
