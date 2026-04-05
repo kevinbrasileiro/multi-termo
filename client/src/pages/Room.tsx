@@ -1,23 +1,38 @@
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { socket } from "../socket"
 import { useParams } from "react-router"
 import type { GuessResult } from "../../../server/src/game/wordle"
+import Board from "../components/Board"
+
+
 
 export default function Room() {
-  const [guess, setGuess] = useState("")
+  const [currentGuess, setCurrentGuess] = useState("")
   const [playerGuesses, setPlayerGuesses] = useState<GuessResult[]>([])
+  const [cursorIndex, setCursorIndex] = useState(0)
+
   const [opponentGuessAmount, setOpponentGuessAmount] = useState(0)
 
   const params = useParams()
+
+  const cursorRef = useRef(cursorIndex)
+  const guessRef = useRef(currentGuess)
+
+  useEffect(() => {
+    cursorRef.current = cursorIndex
+    guessRef.current = currentGuess
+  }, [cursorIndex, currentGuess])
+
+  useEffect(() => {
+    if (params.roomId) {
+      socket.emit("join_room", params.roomId)
+    }
+  }, [params.roomId])
 
   useEffect(() => {
     socket.on("broadcast", (message) => {
       console.log(message)
     })
-
-    if (params.roomId) {
-      socket.emit("join_room", params.roomId)
-    }
 
     socket.on("guess_result", (playerGuesses: GuessResult[]) => {
       setPlayerGuesses(playerGuesses)
@@ -34,50 +49,59 @@ export default function Room() {
       socket.off("guess_result")
       socket.off("opponent_guess")
     }
-  }, [params.roomId])
+  })
 
-  const submitGuess = () => {
+  const submitGuess = (guess: string) => {
     socket.emit("submit_guess", guess)
-    setGuess("")
+    setCurrentGuess("")
   }
 
-  return (
-    <div>
-      <input type="text" value={guess} onChange={(e) => setGuess(e.target.value)}/>
-      <button onClick={submitGuess}>Guess</button>
-      <div style={{ marginTop: "8px" }}>
-        {playerGuesses?.map((guess, i) => (
-          <div key={i} style={{ display: "flex", gap: "4px", marginBottom: "4px" }}>
-            {guess.map((letter, j) => {
-              const bgColor =
-                letter.result === "correct"
-                  ? "green"
-                  : letter.result === "present"
-                  ? "gold"
-                  : "gray";
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "ArrowLeft") {
+        setCursorIndex((prev) => Math.max(0, prev - 1))
+      } 
+      else if (e.key === "ArrowRight") {
+        setCursorIndex((prev) => Math.min(4, prev + 1))
+      } 
+      else if (e.key === "Backspace") {
+        setCurrentGuess((prev) => {
+          const arr = prev.split("")
+          arr[cursorRef.current] = " "
+          return arr.join("")
+        })
+        setCursorIndex((prev) => Math.max(0, prev - 1))
+      } else if (e.key === "Enter") {
+        submitGuess(guessRef.current)
+        setCursorIndex(0)
+      } 
+      else if (e.key.length === 1) {
+        setCurrentGuess((prev) => {
+          const arr = prev.padEnd(5, " ").split("")
+          arr[cursorRef.current] = e.key.toUpperCase()
+          return arr.join("").trimEnd()
+        })
 
-              return (
-                <span
-                  key={j}
-                  style={{
-                    width: "40px",
-                    height: "40px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    backgroundColor: bgColor,
-                    color: "white",
-                    fontWeight: "bold",
-                  }}
-                >
-                  {letter.letter}
-                </span>
-              );
-            })}
-          </div>
-        ))}
-      </div>
-      <div>Opponent Guesses: {opponentGuessAmount}</div>
+        setCursorIndex((prev) => Math.min(4, prev + 1))
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown)
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    }
+  }, [])
+
+  return (
+    <div className="w-full h-full">
+      <Board 
+        playerGuesses={playerGuesses} 
+        currentGuess={currentGuess} 
+        cursorIndex={cursorIndex} 
+        setCursorIndex={setCursorIndex}
+        />
+        {opponentGuessAmount}
     </div>
   )
 }

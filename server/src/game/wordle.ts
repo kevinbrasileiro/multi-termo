@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import path from "path";
 
-export type GuessResult = {letter: string, result: "correct" | "present" | "wrong"}[]
+export type GuessResult = {letter: string, result: "correct" | "present" | "wrong" | "empty"}[]
 
 export const evaluateGuess = (guess: string, targetWord: string): GuessResult => {
   const splitGuess = guess.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().split("")
