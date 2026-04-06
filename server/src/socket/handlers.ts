@@ -1,7 +1,6 @@
 import type { Server, Socket } from "socket.io";
 import type { ClientToServerEvents, ServerToClientEvents } from "./socketEvents.js";
 import { roomsManager } from "../game/rooms.js";
-import { evaluateGuess } from "../game/wordle.js";
 
 export const registerSocketHandlers = (io: Server<ClientToServerEvents, ServerToClientEvents>) => {
   io.on("connection", (socket: Socket<ClientToServerEvents, ServerToClientEvents>) => {
@@ -35,9 +34,16 @@ export const registerSocketHandlers = (io: Server<ClientToServerEvents, ServerTo
 
       const result = roomsManager.submitGuess(socket.id, roomId, guess)
       callback(result)
+
+      const formattedGuessesToOpponents = result.guesses.map((guess) => 
+        guess.map(char => ({
+          letter: "",
+          result: char.result
+        }))
+      )
       
       if (result.status === "ok") {
-        socket.to(roomId).emit("opponent_guess", result.guesses.length)
+        socket.to(roomId).emit("opponent_guess", formattedGuessesToOpponents)
       }
     })
   })

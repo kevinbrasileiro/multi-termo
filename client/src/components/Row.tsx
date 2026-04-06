@@ -4,14 +4,15 @@ type RowProps = {
   guess: GuessResult
   cursorIndex: number
   onCellClick?: (index: number) => void
+  size: number
 }
 
-export default function Row({guess, cursorIndex, onCellClick}: RowProps) {
+export default function Row({guess, cursorIndex, onCellClick, size = 5}: RowProps) {
   const bgStyles = {
     correct: "bg-correct",
     present: "bg-present",
     wrong: "bg-wrong",
-    empty: "bg-dark"
+    empty: "bg-[#111]"
   }
 
   return (
@@ -19,10 +20,11 @@ export default function Row({guess, cursorIndex, onCellClick}: RowProps) {
       {guess.map((character, i) => (
         <div
         onClick={() => onCellClick?.(i)}
+        style={{width: `${size}rem`, height: `${size}rem`}}
         className={
-          `w-10 h-10 flex m-1 border border-gray-500 rounded-sm justify-center items-center font-extrabold text-3xl 
+          `flex m-1 border-[#444] border rounded-sm justify-center items-center font-extrabold text-5xl
           ${bgStyles[character.result]}
-          ${cursorIndex === i ? "border-b-4" : "border"}
+          ${cursorIndex === i ? "border-b-4" : "border-b"}
           ${onCellClick ? "cursor-pointer" : "cursor-default"}`
         }
         >

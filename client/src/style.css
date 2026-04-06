@@ -3,9 +3,9 @@
 @theme {
   --color-correct: #3aa394;
   --color-present: #d3ad69;
-  --color-wrong: #615458;
+  --color-wrong: #222;
 
-  --color-dark: #1c1719;
+  --color-dark: #111;
 }
 
 * {

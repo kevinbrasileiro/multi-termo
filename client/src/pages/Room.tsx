@@ -9,7 +9,7 @@ export default function Room() {
   const [playerGuesses, setPlayerGuesses] = useState<GuessResult[]>([])
   const [cursorIndex, setCursorIndex] = useState(0)
 
-  const [opponentGuessAmount, setOpponentGuessAmount] = useState(0)
+  const [opponentGuesses, setOpponentGuesses] = useState<GuessResult[]>([])
 
   const params = useParams()
   const navigate = useNavigate()
@@ -36,9 +36,8 @@ export default function Room() {
       console.log(message)
     })
 
-    socket.on("opponent_guess", (amount: number) => {
-      console.log(`opponent has sent ${amount} guesses`)
-      setOpponentGuessAmount(amount)
+    socket.on("opponent_guess", (guessResults) => {
+      setOpponentGuesses(guessResults)
     })
 
     return () => {
@@ -68,11 +67,17 @@ export default function Room() {
       } 
       else if (e.key === "Backspace") {
         setCurrentGuess((prev) => {
-          const arr = prev.split("")
-          arr[cursorRef.current] = " "
-          return arr.join("")
+          const arr = prev.padEnd(5, " ").split("")
+          let idx = cursorRef.current
+
+          if (arr[idx] === " " && idx > 0) {
+            idx--
+            setCursorIndex(idx)
+          }
+
+          arr[idx] = " "
+          return arr.join("").trimEnd()
         })
-        setCursorIndex((prev) => Math.max(0, prev - 1))
       } else if (e.key === "Enter") {
         submitGuess(guessRef.current)
       } 
@@ -95,14 +100,21 @@ export default function Room() {
   }, [])
 
   return (
-    <div className="w-screen h-screen flex justify-center items-center">
+    <div className="w-screen h-screen flex justify-center items-center gap-x-12">
       <Board 
         playerGuesses={playerGuesses} 
         currentGuess={currentGuess} 
         cursorIndex={cursorIndex} 
         setCursorIndex={setCursorIndex}
+        size={5}
         />
-        {opponentGuessAmount}
+      <Board 
+        playerGuesses={opponentGuesses}
+        currentGuess=""
+        cursorIndex={-1}
+        setCursorIndex={ () => {} }
+        size={3}
+      />
     </div>
   )
 }

@@ -8,7 +8,7 @@ export type Response = {
 export interface ServerToClientEvents {
   broadcast: (message: string) => void
   
-  opponent_guess: (amount: number) => void;
+  opponent_guess: (guesses: GuessResult[]) => void;
 }
 
 export interface ClientToServerEvents {

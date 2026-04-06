@@ -6,9 +6,10 @@ type BoardProps = {
   currentGuess: string
   cursorIndex: number
   setCursorIndex: (index: number) => void
+  size: number
 }
 
-export default function Board({playerGuesses, currentGuess, cursorIndex, setCursorIndex}: BoardProps) {
+export default function Board({playerGuesses, currentGuess, cursorIndex, setCursorIndex, size}: BoardProps) {
   const currentRow: GuessResult = Array.from(
     { length: 5 },
     (_, i) => ({
@@ -35,11 +36,12 @@ export default function Board({playerGuesses, currentGuess, cursorIndex, setCurs
   return (
     <div>
       {filledGuesses.map((guess, i) => (
-          <Row 
-            guess={guess} 
-            cursorIndex={i === playerGuesses.length ? cursorIndex : -1}
-            onCellClick={i === playerGuesses.length ? setCursorIndex : undefined}
-          />
+        <Row 
+          guess={guess} 
+          cursorIndex={i === playerGuesses.length ? cursorIndex : -1}
+          onCellClick={i === playerGuesses.length ? setCursorIndex : undefined}
+          size={size}
+        />
       ))}
     </div>
   )
