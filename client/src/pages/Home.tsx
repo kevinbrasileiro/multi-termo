@@ -11,7 +11,9 @@ export default function App() {
   }
 
   return (
-    <button onClick={createRoom}>Create Room</button>
+    <div className="w-screen h-screen flex justify-center items-center">
+      <button className="border-white border py-2 px-3 rounded-md cursor-pointer" onClick={createRoom}>Create Room</button>
+    </div>
   )
 }
 

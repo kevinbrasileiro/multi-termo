@@ -1,5 +1,5 @@
 import type { Response } from "../socket/socketEvents.js"
-import { evaluateGuess, generateRandomWord, guessIsInWordList, type GuessResult } from "./wordle.js"
+import { evaluateGuess, generateRandomWord, guessExists, type GuessResult } from "./wordle.js"
 
 export type Room = {
   id: string
@@ -61,7 +61,11 @@ class RoomsManager {
       return { status: "error", errorMessage: "Invalid length", guesses: room.playerGuesses[playerId] }
     }
 
-    if (!guessIsInWordList(guess)) {
+    if (room.playerGuesses[playerId].length >= 6) {
+      return { status: "error", errorMessage: "Guesses limit reached", guesses: room.playerGuesses[playerId]}
+    }
+
+    if (!guessExists(guess)) {
       return { status: "error", errorMessage: "Word cannot be accepted", guesses: room.playerGuesses[playerId]}
     }
 

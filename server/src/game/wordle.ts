@@ -39,16 +39,21 @@ export const evaluateGuess = (guess: string, targetWord: string): GuessResult =>
   return result
 }
 
-const filePath = path.resolve("src/resources/wordlist.txt")
-const wordList = readFileSync(filePath, "utf-8").split("\n").map(word => {
-  return word.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase()
-})
+const wordList = readFileSync(path.resolve("src/resources/wordlist.txt"), "utf-8")
+  .split("\n").map(word => {
+    return word.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase()
+  })
+
+const guessList = readFileSync(path.resolve("src/resources/guesslist.txt"), "utf-8")
+  .split("\n").map(word => {
+    return word.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase()
+  })
 
 export function generateRandomWord() {
   const randomIndex = Math.floor(Math.random() * wordList.length)
   return wordList[randomIndex] ?? "";
 }
 
-export function guessIsInWordList(guess: string): boolean {
-  return wordList.includes(guess.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase())
+export function guessExists(guess: string): boolean {
+  return guessList.includes(guess.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase())
 }
