@@ -8,7 +8,9 @@ export const registerSocketHandlers = (io: Server<ClientToServerEvents, ServerTo
 
     socket.on("create_game", (callback) => {
       const gameId = gamesManager.createGame(socket.id, {maxGuesses: 6, maxPlayers: 2, private: true})
+
       callback(gameId)
+      emitGameState(gameId)
     })
 
     socket.on("join_game", (gameId, callback) => {
@@ -25,7 +27,9 @@ export const registerSocketHandlers = (io: Server<ClientToServerEvents, ServerTo
       })
       
       socket.join(gameId)
+
       callback({status: "ok"})
+      emitGameState(gameId)
     })
 
     socket.on("submit_guess", (guess, callback) => {
@@ -35,16 +39,21 @@ export const registerSocketHandlers = (io: Server<ClientToServerEvents, ServerTo
       const result = gamesManager.submitGuess(socket.id, gameId, guess)
       callback(result)
 
-      const formattedGuessesToOpponents = result.guesses.map((guess) => 
-        guess.map(char => ({
-          letter: "",
-          result: char.result
-        }))
-      )
-      
       if (result.status === "ok") {
-        socket.to(gameId).emit("opponent_guess", formattedGuessesToOpponents)
+        emitGameState(gameId)
       }
     })
+
+    const emitGameState = (gameId: string) => {
+      const game = gamesManager.getGame(gameId)
+      if (!game) return
+
+      Object.keys(game.players).forEach((playerId) => {
+        const state = gamesManager.getFormattedGameState(playerId, gameId)
+        if (!state) return
+
+        io.to(playerId).emit("update_game_state", state)
+      })
+    }
   })
 }

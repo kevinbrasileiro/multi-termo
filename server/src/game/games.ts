@@ -42,8 +42,6 @@ class GamesManager {
       }
     })
 
-    console.log(`${gameId} created`)
-    console.dir(this.games)
     return gameId
   }
 
@@ -51,14 +49,17 @@ class GamesManager {
     const game = this.games.get(gameId)
     if (!game) return false
 
-    if (game.players[playerId]) return true
+    const players = game.players
+    if (players[playerId]) return true
     
-    if (Object.keys(game.players).length >= game.config.maxPlayers) return false
+    if (Object.keys(players).length >= game.config.maxPlayers) return false
     
-    game.players[playerId] = {guesses: [], score: 0}
+    players[playerId] = {guesses: [], score: 0}
 
-    console.log(`${playerId} joined ${game.id}`)
-    console.dir(this.games)
+    if (Object.keys(players).length >= game.config.maxPlayers) {
+      game.status = "playing"
+    }
+
     return true
   }
 
@@ -77,19 +78,30 @@ class GamesManager {
       guesses: []
     }
 
-    if (guess.length !== 5) {
-      return { status: "error", errorMessage: "Invalid length", guesses: player.guesses }
+    if (game.status !== "playing") {
+      return { status: "error", errorMessage: "Game is not playing", guesses: player.guesses }
     }
 
     if (player.guesses.length >= game.config.maxGuesses) {
       return { status: "error", errorMessage: "Guess limit reached", guesses: player.guesses}
     }
 
-    if (!guessExists(guess)) {
+    const normalizedGuess = guess.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase()
+
+    if (normalizedGuess.length !== 5) {
+      return { status: "error", errorMessage: "Invalid length", guesses: player.guesses }
+    }
+
+    if (!guessExists(normalizedGuess)) {
       return { status: "error", errorMessage: "Word cannot be accepted", guesses: player.guesses}
     }
 
-    const result = evaluateGuess(guess, game.word)
+    if (normalizedGuess === game.word) {
+      player.score++
+      game.status = "finished"
+    }
+
+    const result = evaluateGuess(normalizedGuess, game.word)
     player.guesses.push(result)
     
     console.log(`${playerId}@${game.id} guessed ${guess}`)
@@ -98,6 +110,31 @@ class GamesManager {
     return {
       status: "ok",
       guesses: player.guesses
+    }
+  }
+
+  getFormattedGameState(playerId: string, gameId: string) {
+    const game = this.getGame(gameId)
+    if (!game) return
+
+    return {
+      players: Object.fromEntries(
+        Object.entries(game.players).map(([id, player]) => {
+          const isOwner = id === playerId
+
+          return [id,
+            {score: player.score, guesses: player.guesses.map((guess) =>
+              isOwner
+              ? guess 
+              : guess.map((guess) => ({
+                  ...guess,
+                  letter: "", 
+                }))
+            )},
+          ]
+        })
+      ),
+      status: game.status
     }
   }
 }

@@ -1,3 +1,4 @@
+import type { Game } from "../game/games.ts";
 import type { GuessResult } from "../game/wordle.ts";
 
 export type Response = {
@@ -8,7 +9,7 @@ export type Response = {
 export interface ServerToClientEvents {
   broadcast: (message: string) => void
   
-  opponent_guess: (guesses: GuessResult[]) => void;
+  update_game_state: (gameState: {players: Game["players"], status: Game["status"]}) => void
 }
 
 export interface ClientToServerEvents {

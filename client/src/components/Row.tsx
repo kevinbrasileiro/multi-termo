@@ -19,6 +19,7 @@ export default function Row({guess, cursorIndex, onCellClick, size = 5}: RowProp
     <div className="flex">
       {guess.map((character, i) => (
         <div
+        key={i}
         onClick={() => onCellClick?.(i)}
         style={{width: `${size}rem`, height: `${size}rem`}}
         className={

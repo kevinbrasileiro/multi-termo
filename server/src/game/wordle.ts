@@ -4,8 +4,8 @@ import path from "path";
 export type GuessResult = {letter: string, result: "correct" | "present" | "wrong" | "empty"}[]
 
 export const evaluateGuess = (guess: string, targetWord: string): GuessResult => {
-  const splitGuess = guess.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().split("")
-  const splitTargetWord = targetWord.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().split("")
+  const splitGuess = guess.split("")
+  const splitTargetWord = targetWord.split("")
   const result: GuessResult = []
 
   const frequencies: Record<string, number> = {}
@@ -55,5 +55,5 @@ export function generateRandomWord() {
 }
 
 export function guessExists(guess: string): boolean {
-  return guessList.includes(guess.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase())
+  return guessList.includes(guess)
 }

@@ -5,7 +5,7 @@ type BoardProps = {
   playerGuesses: GuessResult[]
   currentGuess: string
   cursorIndex: number
-  setCursorIndex: (index: number) => void
+  setCursorIndex?: (index: number) => void
   size: number
 }
 
@@ -37,6 +37,7 @@ export default function Board({playerGuesses, currentGuess, cursorIndex, setCurs
     <div>
       {filledGuesses.map((guess, i) => (
         <Row 
+          key={i}
           guess={guess} 
           cursorIndex={i === playerGuesses.length ? cursorIndex : -1}
           onCellClick={i === playerGuesses.length ? setCursorIndex : undefined}
