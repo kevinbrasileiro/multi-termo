@@ -4,7 +4,7 @@ import { useNavigate, useParams } from "react-router"
 import type { GuessResult } from "../../../server/src/game/wordle"
 import Board from "../components/Board"
 
-export default function Room() {
+export default function Game() {
   const [currentGuess, setCurrentGuess] = useState("")
   const [playerGuesses, setPlayerGuesses] = useState<GuessResult[]>([])
   const [cursorIndex, setCursorIndex] = useState(0)
@@ -23,13 +23,16 @@ export default function Room() {
   }, [cursorIndex, currentGuess])
 
   useEffect(() => {
-    socket.emit("join_room", params.roomId ?? "", (response) => {
+    if (!params.gameId) return
+
+    socket.emit("join_game", params.gameId, (response) => {
       if (response.status === "error") {
         console.error(response.errorMessage)
         navigate("/")
       }
     })
-  }, [params.roomId, navigate])
+    
+  }, [params.gameId, navigate])
 
   useEffect(() => {
     socket.on("broadcast", (message) => {

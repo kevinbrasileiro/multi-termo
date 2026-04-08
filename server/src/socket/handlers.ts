@@ -1,38 +1,38 @@
 import type { Server, Socket } from "socket.io";
 import type { ClientToServerEvents, ServerToClientEvents } from "./socketEvents.js";
-import { roomsManager } from "../game/rooms.js";
+import { gamesManager } from "../game/games.js";
 
 export const registerSocketHandlers = (io: Server<ClientToServerEvents, ServerToClientEvents>) => {
   io.on("connection", (socket: Socket<ClientToServerEvents, ServerToClientEvents>) => {
     socket.on("ping", () => console.log("PING received"))
 
-    socket.on("create_room", (callback) => {
-      const roomId = roomsManager.createRoom(socket.id)
-      callback(roomId)
+    socket.on("create_game", (callback) => {
+      const gameId = gamesManager.createGame(socket.id, {maxGuesses: 6, maxPlayers: 2, private: true})
+      callback(gameId)
     })
 
-    socket.on("join_room", (roomId, callback) => {
-      const roomExists = roomsManager.joinRoom(socket.id, roomId)
+    socket.on("join_game", (gameId, callback) => {
+      const gameExists = gamesManager.joinGame(socket.id, gameId)
 
-      if (!roomExists) {
-        return callback({status: "error", errorMessage: "room does not exist"})
+      if (!gameExists) {
+        return callback({status: "error", errorMessage: "game does not exist or is full"})
       }
       
-      socket.rooms.forEach((room) => {
+      [...socket.rooms].forEach((room) => {
         if (room !== socket.id) {
           socket.leave(room)
         }
       })
       
-      socket.join(roomId)
+      socket.join(gameId)
       callback({status: "ok"})
     })
 
     socket.on("submit_guess", (guess, callback) => {
-      const roomId = [...socket.rooms].find(r => r !== socket.id)
-      if (!roomId) return
+      const gameId = [...socket.rooms].find(r => r !== socket.id)
+      if (!gameId) return
 
-      const result = roomsManager.submitGuess(socket.id, roomId, guess)
+      const result = gamesManager.submitGuess(socket.id, gameId, guess)
       callback(result)
 
       const formattedGuessesToOpponents = result.guesses.map((guess) => 
@@ -43,7 +43,7 @@ export const registerSocketHandlers = (io: Server<ClientToServerEvents, ServerTo
       )
       
       if (result.status === "ok") {
-        socket.to(roomId).emit("opponent_guess", formattedGuessesToOpponents)
+        socket.to(gameId).emit("opponent_guess", formattedGuessesToOpponents)
       }
     })
   })
