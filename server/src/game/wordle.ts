@@ -49,11 +49,13 @@ const guessList = readFileSync(path.resolve("src/resources/guesslist.txt"), "utf
     return word.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase()
   })
 
+const guessSet = new Set(guessList)
+
 export function generateRandomWord() {
   const randomIndex = Math.floor(Math.random() * wordList.length)
   return wordList[randomIndex] ?? "";
 }
 
 export function guessExists(guess: string): boolean {
-  return guessList.includes(guess)
+  return guessSet.has(guess)
 }
