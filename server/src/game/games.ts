@@ -120,18 +120,16 @@ class GamesManager {
         game.status = "finished"
         player.score++
       }
+    }
 
+    if (normalizedGuess === game.word || player.guesses.length === game.config.maxGuesses) {
       const sortedWinners = this.checkAndSortWinners(game)
-
       if (sortedWinners) {
-        sortedWinners.forEach((player, i) => {
-          player[1].score += sortedWinners.length - i - 1
-        })
-
+        this.scorePLayers(sortedWinners)
         game.status = "finished"
       }
     }
-    
+
     console.log(`${playerId}@${game.id} guessed ${guess}`)
     console.dir(this.games)
 
@@ -168,6 +166,14 @@ class GamesManager {
       if (playerB.win !== null) return 1
 
       return 0
+    })
+  }
+
+  private scorePLayers(players: [string, PlayerInfo][]) {
+    players.forEach((player, i) => {
+      player[1].win 
+      ? player[1].score += players.length - i - 1 
+      : 0
     })
   }
 
