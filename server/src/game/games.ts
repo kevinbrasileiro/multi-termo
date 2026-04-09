@@ -53,6 +53,7 @@ class GamesManager {
     if (players[playerId]) return true
     
     if (Object.keys(players).length >= game.config.maxPlayers) return false
+    if (game.status === "playing") return false
     
     players[playerId] = {guesses: [], score: 0}
 
@@ -61,6 +62,17 @@ class GamesManager {
     }
 
     return true
+  }
+
+  leaveGame(playerId: string, gameId: string) {
+    const game = this.games.get(gameId)
+    if (!game) return
+
+    delete game.players[playerId]
+
+    if (Object.keys(game.players).length <= 0) {
+      this.games.delete(gameId)
+    }
   }
 
   submitGuess(playerId: string, gameId: string , guess: string): Response & {guesses: GuessResult[]}  {

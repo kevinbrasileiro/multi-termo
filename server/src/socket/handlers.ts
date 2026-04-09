@@ -1,8 +1,8 @@
 import type { Server, Socket } from "socket.io";
-import type { ClientToServerEvents, ServerToClientEvents } from "./socketEvents.js";
+import type { ClientToServerEvents, InterServerEvents, ServerToClientEvents, SocketData } from "./socketEvents.js";
 import { gamesManager } from "../game/games.js";
 
-export const registerSocketHandlers = (io: Server<ClientToServerEvents, ServerToClientEvents>) => {
+export const registerSocketHandlers = (io: Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>) => {
   io.on("connection", (socket: Socket<ClientToServerEvents, ServerToClientEvents>) => {
     socket.on("ping", () => console.log("PING received"))
 
@@ -27,13 +27,14 @@ export const registerSocketHandlers = (io: Server<ClientToServerEvents, ServerTo
       })
       
       socket.join(gameId)
+      socket.data.gameId = gameId
 
       callback({status: "ok"})
       emitGameState(gameId)
     })
 
     socket.on("submit_guess", (guess, callback) => {
-      const gameId = [...socket.rooms].find(r => r !== socket.id)
+      const gameId = socket.data.gameId
       if (!gameId) return
 
       const result = gamesManager.submitGuess(socket.id, gameId, guess)
@@ -42,6 +43,14 @@ export const registerSocketHandlers = (io: Server<ClientToServerEvents, ServerTo
       if (result.status === "ok") {
         emitGameState(gameId)
       }
+    })
+
+    socket.on("disconnect", () => {
+      const gameId = socket.data.gameId
+      if (!gameId) return
+
+      gamesManager.leaveGame(socket.id, gameId)
+      emitGameState(gameId)
     })
 
     const emitGameState = (gameId: string) => {

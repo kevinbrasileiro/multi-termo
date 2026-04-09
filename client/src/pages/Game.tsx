@@ -139,7 +139,7 @@ export default function Game() {
         })()
       )}
 
-      <div className="flex flex-wrap justify-center gap-6 max-w-5xl">
+      <div className="flex flex-wrap justify-center gap-6 max-w-6xl">
         {opponents.map(([id, player]) => (
           <div key={id} className="flex flex-col items-center">
             <div>{id} - {player.score}</div>

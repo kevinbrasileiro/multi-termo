@@ -21,11 +21,10 @@ export interface ClientToServerEvents {
   submit_guess: (guess: string, callback: (res: Response & {guesses: GuessResult[]}) => void) => void
 }
 
-// export interface InterServerEvents {
-//   ping: () => void;
-// }
+export interface InterServerEvents {
+  ping: () => void;
+}
 
-// export interface SocketData {
-//   name: string;
-//   age: number;
-// }
+export interface SocketData {
+  gameId: string;
+}
