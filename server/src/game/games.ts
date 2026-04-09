@@ -4,6 +4,7 @@ import { evaluateGuess, generateRandomWord, guessExists, type GuessResult } from
 export type PlayerInfo = {
   guesses: GuessResult[]
   score: number
+  win: number | null // timestamp
 }
 
 export type Game = {
@@ -14,6 +15,7 @@ export type Game = {
   config: {
     maxPlayers: number
     maxGuesses: number
+    mode: "timed" | "guesses"
     private: boolean
   }
 }
@@ -31,15 +33,11 @@ class GamesManager {
     this.games.set(gameId, {
       id: gameId,
       players: {
-        [playerId]: {guesses: [], score: 0} 
+        [playerId]: {guesses: [], score: 0, win: null} 
       },
       word: generateRandomWord(),
       status: "waiting",
-      config: config ?? {
-        maxGuesses: 6,
-        maxPlayers: 2,
-        private: true
-      }
+      config
     })
 
     return gameId
@@ -55,7 +53,7 @@ class GamesManager {
     if (Object.keys(players).length >= game.config.maxPlayers) return false
     if (game.status === "playing") return false
     
-    players[playerId] = {guesses: [], score: 0}
+    players[playerId] = {guesses: [], score: 0, win: null}
 
     if (Object.keys(players).length >= game.config.maxPlayers) {
       game.status = "playing"
@@ -94,6 +92,10 @@ class GamesManager {
       return { status: "error", errorMessage: "Game is not playing", guesses: player.guesses }
     }
 
+    if (player.win) {
+      return { status: "error", errorMessage: "Player already won", guesses: player.guesses}
+    }
+
     if (player.guesses.length >= game.config.maxGuesses) {
       return { status: "error", errorMessage: "Guess limit reached", guesses: player.guesses}
     }
@@ -108,13 +110,27 @@ class GamesManager {
       return { status: "error", errorMessage: "Word cannot be accepted", guesses: player.guesses}
     }
 
-    if (normalizedGuess === game.word) {
-      player.score++
-      game.status = "finished"
-    }
-
     const result = evaluateGuess(normalizedGuess, game.word)
     player.guesses.push(result)
+
+    if (normalizedGuess === game.word) {
+      player.win = Date.now()
+
+      if (game.config.mode === "timed") {
+        game.status = "finished"
+        player.score++
+      }
+
+      const sortedWinners = this.checkAndSortWinners(game)
+
+      if (sortedWinners) {
+        sortedWinners.forEach((player, i) => {
+          player[1].score += sortedWinners.length - i - 1
+        })
+
+        game.status = "finished"
+      }
+    }
     
     console.log(`${playerId}@${game.id} guessed ${guess}`)
     console.dir(this.games)
@@ -123,6 +139,36 @@ class GamesManager {
       status: "ok",
       guesses: player.guesses
     }
+  }
+
+  private checkAndSortWinners(game: Game) {
+    if (game.status !== "playing") return
+
+    const players = Object.entries(game.players)
+
+    const finishedPlayers = players.filter(([_, player]) => {
+      if (player.win !== null || (player.guesses.length >= game.config.maxGuesses)) return player
+    })
+
+    if (finishedPlayers.length < players.length) return
+
+    return finishedPlayers.sort((a, b) => {
+      const playerA = a[1]
+      const playerB = b[1]
+
+      if (playerA.guesses.length !== playerB.guesses.length) {
+        return playerA.guesses.length - playerB.guesses.length
+      }
+
+      if (playerA.win !== null && playerB.win !== null) {
+        return playerA.win - playerB.win
+      }
+
+      if (playerA.win !== null) return -1
+      if (playerB.win !== null) return 1
+
+      return 0
+    })
   }
 
   getFormattedGameState(playerId: string, gameId: string) {
@@ -135,7 +181,7 @@ class GamesManager {
           const isOwner = id === playerId
 
           return [id,
-            {score: player.score, guesses: player.guesses.map((guess) =>
+            {score: player.score, win: player.win, guesses: player.guesses.map((guess) =>
               isOwner
               ? guess 
               : guess.map((guess) => ({

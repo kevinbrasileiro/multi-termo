@@ -7,7 +7,7 @@ export const registerSocketHandlers = (io: Server<ClientToServerEvents, ServerTo
     socket.on("ping", () => console.log("PING received"))
 
     socket.on("create_game", (callback) => {
-      const gameId = gamesManager.createGame(socket.id, {maxGuesses: 6, maxPlayers: 2, private: true})
+      const gameId = gamesManager.createGame(socket.id, {maxGuesses: 6, maxPlayers: 2, mode: "guesses", private: true})
 
       callback(gameId)
       emitGameState(gameId)
