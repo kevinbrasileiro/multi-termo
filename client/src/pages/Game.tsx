@@ -5,7 +5,6 @@ import Board from "../components/Board"
 import type { Game, PlayerInfo } from "../../../server/src/game/games"
 
 export default function Game() {
-  const [socketId, setSocketId] = useState("")
   const [players, setPlayers] = useState<Record<string, PlayerInfo>>({})
 
   const [currentGuess, setCurrentGuess] = useState("")
@@ -35,7 +34,6 @@ export default function Game() {
         console.error(response.errorMessage)
         navigate("/")
       }
-      setSocketId(socket.id ?? "")
     })
     
   }, [params.gameId, navigate])
@@ -113,8 +111,8 @@ export default function Game() {
   }, [])
 
   const sortedPlayers = Object.entries(players).sort(([idA], [idB]) => {
-    if (idA === socketId) return -1
-    if (idB === socketId) return 1
+    if (idA === socket.id) return -1
+    if (idB === socket.id) return 1
     return 0
   })
 
