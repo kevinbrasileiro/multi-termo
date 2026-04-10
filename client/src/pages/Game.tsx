@@ -6,6 +6,7 @@ import type { Game, PlayerInfo } from "../../../server/src/game/games"
 
 export default function Game() {
   const [players, setPlayers] = useState<Record<string, PlayerInfo>>({})
+  const [maxGuesses, setMaxGuesses] = useState(6)
 
   const [currentGuess, setCurrentGuess] = useState("")
   const guessRef = useRef(currentGuess)
@@ -13,8 +14,7 @@ export default function Game() {
   const [cursorIndex, setCursorIndex] = useState(0)
   const cursorRef = useRef(cursorIndex)
 
-  const [gameStatus, setGameStatus] = useState<Game["status"]>("waiting")
-  const statusRef = useRef(gameStatus)
+  const statusRef = useRef("waiting")
 
   const params = useParams()
   const navigate = useNavigate()
@@ -23,8 +23,7 @@ export default function Game() {
   useEffect(() => {
     guessRef.current = currentGuess
     cursorRef.current = cursorIndex
-    statusRef.current = gameStatus
-  }, [cursorIndex, currentGuess, gameStatus])
+  }, [cursorIndex, currentGuess])
 
   useEffect(() => {
     if (!params.gameId) return
@@ -45,7 +44,7 @@ export default function Game() {
 
     socket.on("update_game_state", (gameState) => {
       setPlayers(gameState.players)
-      setGameStatus(gameState.status)
+      setMaxGuesses(gameState.maxGuesses)
       statusRef.current = gameState.status
     })
 
@@ -130,6 +129,7 @@ export default function Game() {
               <Board 
                 currentGuess={currentGuess}
                 playerGuesses={player.guesses}
+                maxGuesses={maxGuesses}
                 cursorIndex={cursorIndex}
                 setCursorIndex={setCursorIndex}
                 size={5}
@@ -145,6 +145,7 @@ export default function Game() {
             <div>{id} - {player.score}</div>
             <Board
               playerGuesses={player.guesses}
+              maxGuesses={maxGuesses}
               currentGuess=""
               cursorIndex={-1}
               size={opponents.length <= 6 ? 3 : 2}

@@ -198,7 +198,8 @@ class GamesManager {
           ]
         })
       ),
-      status: game.status
+      status: game.status,
+      maxGuesses: game.config.maxGuesses,
     }
   }
 }

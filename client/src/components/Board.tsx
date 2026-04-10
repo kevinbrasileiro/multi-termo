@@ -3,13 +3,14 @@ import Row from "./Row"
 
 type BoardProps = {
   playerGuesses: GuessResult[]
+  maxGuesses: number
   currentGuess: string
   cursorIndex: number
   setCursorIndex?: (index: number) => void
   size: number
 }
 
-export default function Board({playerGuesses, currentGuess, cursorIndex, setCursorIndex, size}: BoardProps) {
+export default function Board({playerGuesses, maxGuesses, currentGuess, cursorIndex, setCursorIndex, size}: BoardProps) {
   const currentRow: GuessResult = Array.from(
     { length: 5 },
     (_, i) => ({
@@ -20,10 +21,10 @@ export default function Board({playerGuesses, currentGuess, cursorIndex, setCurs
 
   const filledGuesses: GuessResult[] = [
     ...playerGuesses,
-    ...(playerGuesses.length < 6 ? [currentRow] : []),
+    ...(playerGuesses.length < maxGuesses ? [currentRow] : []),
     ...Array.from(
       {
-        length: 6 - playerGuesses.length - (playerGuesses.length < 6 ? 1 : 0),
+        length: maxGuesses - playerGuesses.length - (playerGuesses.length < maxGuesses ? 1 : 0),
       },
       () =>
         Array.from({ length: 5 }, () => ({
