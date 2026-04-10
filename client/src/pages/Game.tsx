@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { socket } from "../socket"
 import { useNavigate, useParams } from "react-router"
 import Board from "../components/Board"
@@ -64,50 +64,50 @@ export default function Game() {
     })
   }
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (statusRef.current !== "playing") {
-        return
-      }
-      if (e.key === "ArrowLeft") {
-        setCursorIndex((prev) => Math.max(0, prev - 1))
-      } 
-      else if (e.key === "ArrowRight") {
-        setCursorIndex((prev) => Math.min(4, prev + 1))
-      } 
-      else if (e.key === "Backspace") {
-        setCurrentGuess((prev) => {
-          const arr = prev.padEnd(5, " ").split("")
-          let idx = cursorRef.current
-
-          if (arr[idx] === " " && idx > 0) {
-            idx--
-            setCursorIndex(idx)
-          }
-
-          arr[idx] = " "
-          return arr.join("").trimEnd()
-        })
-      } else if (e.key === "Enter") {
-        submitGuess(guessRef.current)
-      } 
-      else if (e.key.length === 1) {
-        setCurrentGuess((prev) => {
-          const arr = prev.padEnd(5, " ").split("")
-          arr[cursorRef.current] = e.key.toUpperCase()
-          return arr.join("").trimEnd()
-        })
-
-        setCursorIndex((prev) => Math.min(4, prev + 1))
-      }
+  const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    if (statusRef.current !== "playing" ) {
+      return
     }
+    if (e.key === "ArrowLeft") {
+      setCursorIndex((prev) => Math.max(0, prev - 1))
+    } 
+    else if (e.key === "ArrowRight") {
+      setCursorIndex((prev) => Math.min(4, prev + 1))
+    } 
+    else if (e.key === "Backspace") {
+      setCurrentGuess((prev) => {
+        const arr = prev.padEnd(5, " ").split("")
+        let idx = cursorRef.current
 
+        if (arr[idx] === " " && idx > 0) {
+          idx--
+          setCursorIndex(idx)
+        }
+
+        arr[idx] = " "
+        return arr.join("").trimEnd()
+      })
+    } else if (e.key === "Enter") {
+      submitGuess(guessRef.current)
+    } 
+    else if (/^[a-zA-Z]$/.test(e.key)) {
+      setCurrentGuess((prev) => {
+        const arr = prev.padEnd(5, " ").split("")
+        arr[cursorRef.current] = e.key.toUpperCase()
+        return arr.join("").trimEnd()
+      })
+
+      setCursorIndex((prev) => Math.min(4, prev + 1))
+    }
+  }, [])
+
+  useEffect(() => {
     window.addEventListener("keydown", handleKeyDown)
 
     return () => {
-      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keydown", handleKeyDown)
     }
-  }, [])
+  }, [handleKeyDown])
 
   const sortedPlayers = Object.entries(players).sort(([idA], [idB]) => {
     if (idA === socket.id) return -1
@@ -117,13 +117,12 @@ export default function Game() {
 
   const [me , ...opponents] = sortedPlayers
 
-
   return (
     <div className="w-screen h-screen flex justify-center items-center gap-10">
       {me && (
         (() => {
           const [id, player] = me
-          return (
+          return (  
             <div className="flex flex-col items-center">
               <p>{id} - {player.score}</p>
               <Board 

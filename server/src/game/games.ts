@@ -36,7 +36,7 @@ class GamesManager {
         [playerId]: {guesses: [], score: 0, win: null} 
       },
       word: generateRandomWord(),
-      status: "waiting",
+      status: config.maxPlayers >= 2 ? "waiting" : "playing",
       config
     })
 
@@ -116,7 +116,7 @@ class GamesManager {
     if (normalizedGuess === game.word) {
       player.win = Date.now()
 
-      if (game.config.mode === "timed") {
+      if (game.config.mode === "timed" || game.config.maxPlayers === 1) {
         game.status = "finished"
         player.score++
       }
@@ -125,7 +125,7 @@ class GamesManager {
     if (normalizedGuess === game.word || player.guesses.length === game.config.maxGuesses) {
       const sortedWinners = this.checkAndSortWinners(game)
       if (sortedWinners) {
-        this.scorePLayers(sortedWinners)
+        this.scorePlayers(sortedWinners)
         game.status = "finished"
       }
     }
@@ -145,7 +145,7 @@ class GamesManager {
     const players = Object.entries(game.players)
 
     const finishedPlayers = players.filter(([_, player]) => {
-      if (player.win !== null || (player.guesses.length >= game.config.maxGuesses)) return player
+      return player.win !== null || (player.guesses.length >= game.config.maxGuesses)
     })
 
     if (finishedPlayers.length < players.length) return
@@ -169,7 +169,7 @@ class GamesManager {
     })
   }
 
-  private scorePLayers(players: [string, PlayerInfo][]) {
+  private scorePlayers(players: [string, PlayerInfo][]) {
     players.forEach((player, i) => {
       player[1].win 
       ? player[1].score += players.length - i - 1 
