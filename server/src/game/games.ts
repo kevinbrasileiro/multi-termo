@@ -36,8 +36,13 @@ class GamesManager {
         [playerId]: {guesses: [], score: 0, win: null} 
       },
       word: generateRandomWord(),
-      status: config.maxPlayers >= 2 ? "waiting" : "playing",
-      config
+      status: config.maxPlayers === 1 ? "playing" : "waiting",
+      config: {
+        maxPlayers: Math.max(1, Math.min(16, config.maxPlayers)),
+        maxGuesses: Math.max(3, Math.min(9, config.maxGuesses)),
+        mode: config.mode,
+        private: config.private,
+      }
     })
 
     return gameId
@@ -67,6 +72,10 @@ class GamesManager {
     if (!game) return
 
     delete game.players[playerId]
+    
+    if (Object.keys(game.players).length === 1) {
+      game.status = "waiting"
+    }
 
     if (Object.keys(game.players).length <= 0) {
       this.games.delete(gameId)
@@ -116,7 +125,7 @@ class GamesManager {
     if (normalizedGuess === game.word) {
       player.win = Date.now()
 
-      if (game.config.mode === "timed" || game.config.maxPlayers === 1) {
+      if (game.config.maxPlayers === 1) {
         game.status = "finished"
         player.score++
       }
@@ -154,7 +163,7 @@ class GamesManager {
       const playerA = a[1]
       const playerB = b[1]
 
-      if (playerA.guesses.length !== playerB.guesses.length) {
+      if (game.config.mode === "guesses" && (playerA.guesses.length !== playerB.guesses.length)) {
         return playerA.guesses.length - playerB.guesses.length
       }
 
