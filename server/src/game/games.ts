@@ -5,6 +5,7 @@ export type PlayerInfo = {
   guesses: GuessResult[]
   score: number
   win: number | null // timestamp
+  votedRematch: boolean
 }
 
 export type Game = {
@@ -33,9 +34,9 @@ class GamesManager {
     this.games.set(gameId, {
       id: gameId,
       players: {
-        [playerId]: {guesses: [], score: 0, win: null} 
+        [playerId]: {guesses: [], score: 0, win: null, votedRematch: false} 
       },
-      word: generateRandomWord(),
+      word: "",
       status: config.maxPlayers === 1 ? "playing" : "waiting",
       config: {
         maxPlayers: Math.max(1, Math.min(16, config.maxPlayers)),
@@ -58,10 +59,10 @@ class GamesManager {
     if (Object.keys(players).length >= game.config.maxPlayers) return false
     if (game.status === "playing") return false
     
-    players[playerId] = {guesses: [], score: 0, win: null}
+    players[playerId] = {guesses: [], score: 0, win: null, votedRematch: false}
 
     if (Object.keys(players).length >= game.config.maxPlayers) {
-      game.status = "playing"
+      this.startGame(gameId)
     }
 
     return true
@@ -79,6 +80,40 @@ class GamesManager {
 
     if (Object.keys(game.players).length <= 0) {
       this.games.delete(gameId)
+    }
+  }
+
+  startGame(gameId: string) {
+    const game = this.games.get(gameId)
+    if (!game) return
+
+    Object.entries(game.players).forEach(([_, player]) => {
+      player.guesses = []
+      player.win = null
+      player.votedRematch = false
+    })
+
+    game.status = "playing"
+    game.word = generateRandomWord()
+  }
+
+  voteRematch(playerId: string, gameId: string) {
+    const game = this.games.get(gameId)
+    if (!game) return
+
+    const player = game.players[playerId]
+    if (!player) return
+
+    player.votedRematch = true
+
+    const players = Object.entries(game.players)
+
+    const votingPlayers = players.filter(([_, player]) => {
+      return player.votedRematch
+    })
+
+    if (votingPlayers.length >= players.length) {
+      this.startGame(gameId)
     }
   }
 
@@ -196,7 +231,7 @@ class GamesManager {
           const isOwner = id === playerId
 
           return [id,
-            {score: player.score, win: player.win, guesses: player.guesses.map((guess) =>
+            {score: player.score, win: player.win, votedRematch: player.votedRematch, guesses: player.guesses.map((guess) =>
               isOwner
               ? guess 
               : guess.map((guess) => ({

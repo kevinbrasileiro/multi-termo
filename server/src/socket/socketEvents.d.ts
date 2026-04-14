@@ -1,5 +1,5 @@
-import type { Game } from "../game/games.ts";
-import type { GuessResult } from "../game/wordle.ts";
+import type { Game } from "../game/games.ts"
+import type { GuessResult } from "../game/wordle.ts"
 
 export type Response = {
   status: "ok" | "error"
@@ -13,18 +13,19 @@ export interface ServerToClientEvents {
 }
 
 export interface ClientToServerEvents {
-  ping: () => void;
+  ping: () => void
 
-  create_game: (callback: (gameId: string) => void) => void;
-  join_game: (gameId: string, callback: (res: Response) => void) => void;
+  create_game: (callback: (gameId: string) => void) => void
+  join_game: (gameId: string, callback: (res: Response) => void) => void
 
   submit_guess: (guess: string, callback: (res: Response & {guesses: GuessResult[]}) => void) => void
+  vote_rematch: () => void
 }
 
 export interface InterServerEvents {
-  ping: () => void;
+  ping: () => void
 }
 
 export interface SocketData {
-  gameId: string;
+  gameId: string
 }

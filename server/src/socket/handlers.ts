@@ -14,10 +14,10 @@ export const registerSocketHandlers = (io: Server<ClientToServerEvents, ServerTo
     })
 
     socket.on("join_game", (gameId, callback) => {
-      const gameExists = gamesManager.joinGame(socket.id, gameId)
+      const isGameJoinable = gamesManager.joinGame(socket.id, gameId)
 
-      if (!gameExists) {
-        return callback({status: "error", errorMessage: "game does not exist or is full"})
+      if (!isGameJoinable) {
+        return callback({status: "error", errorMessage: "cannot join game"})
       }
       
       [...socket.rooms].forEach((room) => {
@@ -43,6 +43,14 @@ export const registerSocketHandlers = (io: Server<ClientToServerEvents, ServerTo
       if (result.status === "ok") {
         emitGameState(gameId)
       }
+    })
+
+    socket.on("vote_rematch", () => {
+      const gameId = socket.data.gameId
+      if (!gameId) return
+
+      gamesManager.voteRematch(socket.id, gameId)
+      emitGameState(gameId)
     })
 
     socket.on("disconnect", () => {

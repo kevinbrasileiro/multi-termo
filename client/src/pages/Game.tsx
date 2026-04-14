@@ -50,6 +50,10 @@ export default function Game() {
     }
   }, [])
 
+  const voteRematch = () => {
+    socket.emit("vote_rematch")
+  }
+
   const submitGuess = (guess: string) => {
     socket.emit("submit_guess", guess, (response) => {
       if (response.status === "error") {
@@ -128,7 +132,7 @@ export default function Game() {
       <div className="flex flex-wrap justify-center gap-6 max-w-6xl">
         {opponents.map(([id, player]) => (
           <div key={id} className="flex flex-col items-center">
-            <p className="w-full text-center truncate">{`${id} (${player.score})`}</p>
+            <p className={`w-full text-center truncate ${player.votedRematch ? "bg-correct" : ""}`}>{`${id} (${player.score})`}</p>
             <Board
               playerGuesses={player.guesses}
               maxGuesses={maxGuesses}
@@ -139,7 +143,9 @@ export default function Game() {
           </div>
         ))}
       </div>
-
+      {gameStatus === "finished" && (
+        <button className={`${me?.votedRematch ? "border-correct text-correct" : "border-white text-white"} border py-2 px-3 rounded-md cursor-pointer`} onClick={voteRematch}>Rematch</button>
+      )} 
     </div>
   )
 }
