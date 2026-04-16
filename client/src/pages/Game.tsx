@@ -3,6 +3,7 @@ import { socket } from "../socket"
 import { useNavigate, useParams } from "react-router"
 import Board from "../components/Board"
 import type { Game, PlayerInfo } from "../../../server/src/game/games"
+import Modal from "../components/Modal"
 
 export default function Game() {
   const [players, setPlayers] = useState<Record<string, PlayerInfo>>({})
@@ -20,6 +21,12 @@ export default function Game() {
     return Object.entries(players).filter(([id]) => id !== socket.id)
   }, [players])
 
+  const sortedPlayers = useMemo(() => {
+    if (gameStatus !== "finished") return []
+
+    return Object.entries(players).sort((a, b) => b[1].score.total - a[1].score.total)
+
+  }, [players, gameStatus])
 
   useEffect(() => {
     if (!params.gameId) return
@@ -65,7 +72,7 @@ export default function Game() {
   }
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
-    if (gameStatus !== "playing") {
+    if (gameStatus !== "playing" || me?.win) {
       return
     }
 
@@ -103,7 +110,7 @@ export default function Game() {
         setCursorIndex((prev) => Math.min(4, prev + 1))  
         }
     }
-  }, [currentGuess, cursorIndex, gameStatus])
+  }, [currentGuess, cursorIndex, gameStatus, me])
 
   useEffect(() => {
     window.addEventListener("keydown", handleKeyDown)
@@ -117,7 +124,7 @@ export default function Game() {
     <div className="w-screen max-w-full h-screen max-h-full flex justify-center items-center gap-10">
       {me && (
         <div className="flex flex-col items-center">
-          <p className="w-full text-center truncate">{`${socket.id} (${me.score})`}</p>
+          <p className="w-full text-center truncate">{`${socket.id} (${me.score.total})`}</p>
           <Board 
             currentGuess={currentGuess}
             playerGuesses={me.guesses}
@@ -131,8 +138,8 @@ export default function Game() {
 
       <div className="flex flex-wrap justify-center gap-6 max-w-6xl">
         {opponents.map(([id, player]) => (
-          <div key={id} className="flex flex-col items-center">
-            <p className={`w-full text-center truncate ${player.votedRematch ? "bg-correct" : ""}`}>{`${id} (${player.score})`}</p>
+          <div key={id} className={`flex flex-col items-center ${opponents.length <= 6 ? "w-70" : "w-50"}`}>
+            <p className="w-full text-center truncate">{`${id} (${player.score.total})`}</p>
             <Board
               playerGuesses={player.guesses}
               maxGuesses={maxGuesses}
@@ -143,9 +150,15 @@ export default function Game() {
           </div>
         ))}
       </div>
-      {gameStatus === "finished" && (
+
+      <Modal isOpen={gameStatus === "finished"}>
+        <div className="w-full h-full">
+          {sortedPlayers.map(([id, player]) => (
+            <p className={`${player?.votedRematch ? "bg-correct": ""} ${id === socket.id ? "font-bold" : ""}`}>{`${socket.id === id ? "You" : id} - ${player.score.total} (+${player.score.round})`}</p>
+          ))}
+        </div>
         <button className={`${me?.votedRematch ? "border-correct text-correct" : "border-white text-white"} border py-2 px-3 rounded-md cursor-pointer`} onClick={voteRematch}>Rematch</button>
-      )} 
+      </Modal>
     </div>
   )
 }
