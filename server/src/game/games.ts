@@ -3,7 +3,7 @@ import { evaluateGuess, generateRandomWord, guessExists, type GuessResult } from
 
 export type PlayerInfo = {
   guesses: GuessResult[]
-  score: number
+  score: {round: number, total: number}
   win: number | null // timestamp
   votedRematch: boolean
 }
@@ -34,7 +34,7 @@ class GamesManager {
     this.games.set(gameId, {
       id: gameId,
       players: {
-        [playerId]: {guesses: [], score: 0, win: null, votedRematch: false} 
+        [playerId]: {guesses: [], score: {round: 0, total: 0}, win: null, votedRematch: false} 
       },
       word: "",
       status: config.maxPlayers === 1 ? "playing" : "waiting",
@@ -59,7 +59,7 @@ class GamesManager {
     if (Object.keys(players).length >= game.config.maxPlayers) return false
     if (game.status === "playing") return false
     
-    players[playerId] = {guesses: [], score: 0, win: null, votedRematch: false}
+    players[playerId] = {guesses: [], score: {round: 0, total: 0}, win: null, votedRematch: false}
 
     if (Object.keys(players).length >= game.config.maxPlayers) {
       this.startGame(gameId)
@@ -91,6 +91,7 @@ class GamesManager {
       player.guesses = []
       player.win = null
       player.votedRematch = false
+      player.score.round = 0
     })
 
     game.status = "playing"
@@ -162,7 +163,7 @@ class GamesManager {
 
       if (game.config.maxPlayers === 1) {
         game.status = "finished"
-        player.score++
+        player.score.total++
       }
     }
 
@@ -213,11 +214,14 @@ class GamesManager {
     })
   }
 
-  private scorePlayers(players: [string, PlayerInfo][]) {
-    players.forEach((player, i) => {
-      player[1].win 
-      ? player[1].score += players.length - i - 1 
-      : 0
+  private scorePlayers(sortedPlayers: [string, PlayerInfo][]) {
+    sortedPlayers.forEach((player, i) => {
+      if (player[1].win) {
+        player[1].score.round = sortedPlayers.length - 1 - i
+        player[1].score.total += sortedPlayers.length - i - 1
+      } else {
+        player[1].score.round = 0
+      }
     })
   }
 
@@ -231,13 +235,11 @@ class GamesManager {
           const isOwner = id === playerId
 
           return [id,
-            {score: player.score, win: player.win, votedRematch: player.votedRematch, guesses: player.guesses.map((guess) =>
-              isOwner
-              ? guess 
-              : guess.map((guess) => ({
-                  ...guess,
-                  letter: "", 
-                }))
+            {...player, guesses: player.guesses.map((guess) =>
+              isOwner ? guess : guess.map((guess) => ({
+                ...guess,
+                letter: "", 
+              }))
             )},
           ]
         })
