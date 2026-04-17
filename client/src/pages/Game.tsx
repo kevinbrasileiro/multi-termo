@@ -121,7 +121,7 @@ export default function Game() {
   }, [handleKeyDown])
 
   return (
-    <div className="w-screen max-w-full h-screen max-h-full flex justify-center items-center gap-10">
+    <div className="w-screen h-screen flex justify-center items-center gap-10 overflow-y-auto">
       {me && (
         <div className="flex flex-col items-center">
           <p className="w-full text-center truncate">{`${socket.id} (${me.score.total})`}</p>
@@ -135,20 +135,21 @@ export default function Game() {
           />
         </div>
       )}
-
-      <div className="flex flex-wrap justify-center gap-6 max-w-6xl">
-        {opponents.map(([id, player]) => (
-          <div key={id} className={`flex flex-col items-center ${opponents.length <= 6 ? "w-70" : "w-50"}`}>
-            <p className="w-full text-center truncate">{`${id} (${player.score.total})`}</p>
-            <Board
-              playerGuesses={player.guesses}
-              maxGuesses={maxGuesses}
-              currentGuess=""
-              cursorIndex={-1}
-              size={opponents.length <= 6 ? 3 : 2}
-            />
-          </div>
-        ))}
+      <div className="max-h-full">
+        <div className="flex flex-wrap justify-center gap-6 max-w-6xl py-4">
+          {opponents.map(([id, player]) => (
+            <div key={id} className={`flex flex-col items-center ${opponents.length <= 6 ? "w-70" : "w-50"}`}>
+              <p className="w-full text-center truncate">{`${id} (${player.score.total})`}</p>
+              <Board
+                playerGuesses={player.guesses}
+                maxGuesses={maxGuesses}
+                currentGuess=""
+                cursorIndex={-1}
+                size={opponents.length <= 6 ? 3 : 2}
+              />
+            </div>
+          ))}
+        </div>
       </div>
 
       <Modal isOpen={gameStatus === "finished"}>
