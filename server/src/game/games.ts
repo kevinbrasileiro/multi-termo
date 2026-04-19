@@ -250,6 +250,7 @@ class GamesManager {
       ),
       status: game.status,
       maxGuesses: game.config.maxGuesses,
+      word: game.status === "finished" ? game.word : ""
     }
   }
 }

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { Input } from "../components/generic/Input"
 import { socket } from "../socket"
 import { useNavigate } from "react-router"
@@ -15,10 +15,6 @@ export default function App() {
       navigate(`/game/${gameId}`)
     })
   }
-
-  useEffect(() => {
-    console.log(gameConfig)
-  }, [gameConfig])
 
   const handleGameConfigChange = (field: string, value: string | number | boolean) => {
     setGameConfig(prev => ({

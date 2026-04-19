@@ -9,7 +9,7 @@ export type Response = {
 export interface ServerToClientEvents {
   broadcast: (message: string) => void
   
-  update_game_state: (gameState: {players: Game["players"], status: Game["status"], maxGuesses: number}) => void
+  update_game_state: (gameState: {players: Game["players"], status: Game["status"], word: string, maxGuesses: number}) => void
 }
 
 export interface ClientToServerEvents {

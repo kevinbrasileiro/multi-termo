@@ -2,16 +2,19 @@ import { useCallback, useEffect, useMemo, useState } from "react"
 import { socket } from "../socket"
 import { useNavigate, useParams } from "react-router"
 import Board from "../components/Board"
-import type { Game, PlayerInfo } from "../../../server/src/game/games"
+import type { PlayerInfo } from "../../../server/src/game/games"
 import Modal from "../components/Modal"
 
 export default function Game() {
   const [players, setPlayers] = useState<Record<string, PlayerInfo>>({})
   const [maxGuesses, setMaxGuesses] = useState(6)
   const [gameStatus, setGameStatus] = useState("waiting")
+  const [resultWord, setResultWord] = useState("")
 
   const [currentGuess, setCurrentGuess] = useState("")
   const [cursorIndex, setCursorIndex] = useState(0)
+
+  const [error, setError] = useState(false)
 
   const params = useParams()
   const navigate = useNavigate()
@@ -49,6 +52,7 @@ export default function Game() {
       setPlayers(gameState.players)
       setMaxGuesses(gameState.maxGuesses)
       setGameStatus(gameState.status)
+      setResultWord(gameState.word)
     })
 
     return () => {
@@ -64,7 +68,11 @@ export default function Game() {
   const submitGuess = (guess: string) => {
     socket.emit("submit_guess", guess, (response) => {
       if (response.status === "error") {
-        return console.error(response.errorMessage)
+        setError(false)
+        requestAnimationFrame(() => {
+          setError(true)
+        })
+        return
       }
       setCurrentGuess("")
       setCursorIndex(0)
@@ -123,7 +131,7 @@ export default function Game() {
   return (
     <div className="w-screen h-screen flex justify-center items-center gap-10 overflow-y-auto">
       {me && (
-        <div className="flex flex-col items-center">
+        <div className={`flex flex-col items-center ${error ? "animate-shake" : ""}`}>
           <p className="w-full text-center truncate">{`${socket.id} (${me.score.total})`}</p>
           <Board 
             currentGuess={currentGuess}
@@ -138,7 +146,7 @@ export default function Game() {
       <div className="max-h-full">
         <div className="flex flex-wrap justify-center gap-6 max-w-6xl py-4">
           {opponents.map(([id, player]) => (
-            <div key={id} className={`flex flex-col items-center ${opponents.length <= 6 ? "w-70" : "w-50"}`}>
+            <div key={id} className={`flex flex-col items-center ${(player.win || player.guesses.length >= maxGuesses )? "opacity-50" : ""} ${opponents.length <= 6 ? "w-70" : "w-50"}`}>
               <p className="w-full text-center truncate">{`${id} (${player.score.total})`}</p>
               <Board
                 playerGuesses={player.guesses}
@@ -153,12 +161,59 @@ export default function Game() {
       </div>
 
       <Modal isOpen={gameStatus === "finished"}>
-        <div className="w-full h-full">
-          {sortedPlayers.map(([id, player]) => (
-            <p className={`${player?.votedRematch ? "bg-correct": ""} ${id === socket.id ? "font-bold" : ""}`}>{`${socket.id === id ? "You" : id} - ${player.score.total} (+${player.score.round})`}</p>
-          ))}
+        <div className="w-full h-full flex flex-col gap-4">
+          
+          <div className="flex flex-col gap-1">
+            <h2 className={`text-2xl font-bold text-center ${me?.win ? "text-correct" : "text-danger"}`}>RESULTADOS</h2>
+            {me?.win ? (
+            <p className="text-center">
+              Você acertou a palavra <span className="font-bold">{resultWord}</span> em {me.guesses.length} tentativas
+            </p>
+            ) : (
+            <p className="text-center">
+              Você não pontuou. A palavra era <span className="font-bold">{resultWord}</span>
+            </p>
+            )}
+          </div>
+
+          <div className="flex flex-col gap-2 max-h-[60vh] overflow-y-auto px-4">
+            {sortedPlayers.map(([id, player], index) => {
+              const isMe = id === socket.id
+
+              return (
+                <div key={id} className={
+                  `flex justify-between items-center px-4 py-2 rounded-lg bg-wrong 
+                  ${isMe ? "border border-white" : ""}
+                  `}
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="w-6 text-center">{index + 1}</span>
+                    <span className={player.votedRematch ? "text-correct" : "text-white"}>{isMe ? "You" : id}</span>
+                  </div>
+
+                  <div className="flex items-center gap-1">
+                    <p className="text-xs opacity-50">+{player.score.round}</p>
+                    <p className="text-xl font-bold">{player.score.total}</p>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+
+          <button
+            disabled={me?.votedRematch}
+            className={`
+              py-2 px-3 rounded-md border transition-colors duration-150
+              ${me?.votedRematch
+                ? "bg-correct border-0 text-white cursor-default"
+                : "border-white text-white hover:bg-white hover:text-black cursor-pointer"}
+            `}
+            onClick={voteRematch}
+          >
+            {me?.votedRematch ? "Waiting for others..." : "Rematch"}
+          </button>
+
         </div>
-        <button className={`${me?.votedRematch ? "border-correct text-correct" : "border-white text-white"} border py-2 px-3 rounded-md cursor-pointer`} onClick={voteRematch}>Rematch</button>
       </Modal>
     </div>
   )
