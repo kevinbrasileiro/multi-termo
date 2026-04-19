@@ -37,14 +37,18 @@ class GamesManager {
         [playerId]: {guesses: [], score: {round: 0, total: 0}, win: null, votedRematch: false} 
       },
       word: "",
-      status: config.maxPlayers === 1 ? "playing" : "waiting",
+      status: "waiting",
       config: {
-        maxPlayers: Math.max(1, Math.min(16, config.maxPlayers)),
+        maxPlayers: Math.max(1, Math.min(99, config.maxPlayers)),
         maxGuesses: Math.max(3, Math.min(9, config.maxGuesses)),
         mode: config.mode,
         private: config.private,
       }
     })
+
+    if (config.maxPlayers <= 1) {
+      this.startGame(gameId)
+    }
 
     return gameId
   }

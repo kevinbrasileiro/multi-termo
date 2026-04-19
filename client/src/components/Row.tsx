@@ -12,7 +12,7 @@ export default function Row({guess, cursorIndex, onCellClick, size = 5}: RowProp
     correct: "bg-correct",
     present: "bg-present",
     wrong: "bg-wrong",
-    empty: "bg-[#111]"
+    empty: "bg-dark"
   }
 
   return (
