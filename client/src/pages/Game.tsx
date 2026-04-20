@@ -144,7 +144,7 @@ export default function Game() {
           />
         </div>
       )}
-      <div className="max-h-full">
+      {opponents.length > 0 && (<div className="max-h-full">
         <div className="flex flex-wrap justify-center gap-6 max-w-6xl py-4">
           {opponents.map(([id, player]) => (
             <div key={id} className={`flex flex-col items-center ${(player.win || player.guesses.length >= maxGuesses )? "opacity-50" : ""} ${opponents.length <= 6 ? "w-70" : "w-50"}`}>
@@ -159,7 +159,7 @@ export default function Game() {
             </div>
           ))}
         </div>
-      </div>
+      </div>)}
 
       <Modal isOpen={gameStatus === "finished"}>
         <div className="w-full h-full flex flex-col gap-4">

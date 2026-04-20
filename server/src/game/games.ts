@@ -168,6 +168,7 @@ class GamesManager {
 
       if (game.config.maxPlayers === 1) {
         game.status = "finished"
+        player.score.round++
         player.score.total++
       }
     }
@@ -179,9 +180,6 @@ class GamesManager {
         game.status = "finished"
       }
     }
-
-    console.log(`${playerId}@${game.id} guessed ${guess}`)
-    console.dir(this.games)
 
     return {
       status: "ok",
@@ -234,6 +232,8 @@ class GamesManager {
     const game = this.getGame(gameId)
     if (!game) return
 
+    console.dir(game)
+
     return {
       players: Object.fromEntries(
         Object.entries(game.players).map(([id, player]) => {
@@ -243,7 +243,7 @@ class GamesManager {
             {...player, guesses: player.guesses.map((guess) =>
               isOwner ? guess : guess.map((guess) => ({
                 ...guess,
-                letter: "", 
+                letter: game.status === "playing" ? "" : guess.letter, 
               }))
             )},
           ]
