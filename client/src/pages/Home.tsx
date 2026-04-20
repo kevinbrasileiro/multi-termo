@@ -4,14 +4,17 @@ import { socket } from "../socket"
 import { useNavigate } from "react-router"
 import { Radio } from "../components/generic/Radio"
 import type { Game } from "../../../server/src/game/games"
+import { getUsername } from "../main"
 
 export default function App() {
+  const [gameConfig, setGameConfig] = useState<Game["config"]>({maxPlayers: 2, maxGuesses: 6, mode: "guesses", private: true})
+  const [username, setUsername] = useState(getUsername())
+
   const navigate = useNavigate()
 
-  const [gameConfig, setGameConfig] = useState<Game["config"]>({maxPlayers: 2, maxGuesses: 6, mode: "guesses", private: true})
-
   const createGame = () => {
-    socket.emit("create_game", gameConfig, (gameId) => {
+    socket.emit("create_game", username, gameConfig, (gameId) => {
+      localStorage.setItem("username", username)
       navigate(`/game/${gameId}`)
     })
   }
@@ -24,7 +27,14 @@ export default function App() {
   }
 
   return (
-    <div className="w-screen h-screen flex justify-center items-center">
+    <div className="w-screen h-screen flex justify-center items-center gap-4">
+      <div className="w-72">
+        <Input
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          label="Username"
+        />
+      </div>
       <div className="w-72 flex flex-col gap-8">
         <div className="flex justify-between gap-4">
           <Input 

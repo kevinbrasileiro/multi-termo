@@ -4,6 +4,7 @@ import { useNavigate, useParams } from "react-router"
 import Board from "../components/Board"
 import type { PlayerInfo } from "../../../server/src/game/games"
 import Modal from "../components/Modal"
+import { getUsername } from "../main"
 
 export default function Game() {
   const [players, setPlayers] = useState<Record<string, PlayerInfo>>({})
@@ -34,7 +35,7 @@ export default function Game() {
   useEffect(() => {
     if (!params.gameId) return
 
-    socket.emit("join_game", params.gameId, (response) => {
+    socket.emit("join_game", getUsername(), params.gameId, (response) => {
       if (response.status === "error") {
         console.error(response.errorMessage)
         navigate("/")
@@ -132,7 +133,7 @@ export default function Game() {
     <div className="w-screen h-screen flex justify-center items-center gap-10 overflow-y-auto">
       {me && (
         <div className={`flex flex-col items-center ${error ? "animate-shake" : ""}`}>
-          <p className="w-full text-center truncate">{`${socket.id} (${me.score.total})`}</p>
+          <p className="w-full text-center truncate">{`${me.username} (${me.score.total})`}</p>
           <Board 
             currentGuess={currentGuess}
             playerGuesses={me.guesses}
@@ -147,7 +148,7 @@ export default function Game() {
         <div className="flex flex-wrap justify-center gap-6 max-w-6xl py-4">
           {opponents.map(([id, player]) => (
             <div key={id} className={`flex flex-col items-center ${(player.win || player.guesses.length >= maxGuesses )? "opacity-50" : ""} ${opponents.length <= 6 ? "w-70" : "w-50"}`}>
-              <p className="w-full text-center truncate">{`${id} (${player.score.total})`}</p>
+              <p className="w-full text-center truncate">{`${player.username} (${player.score.total})`}</p>
               <Board
                 playerGuesses={player.guesses}
                 maxGuesses={maxGuesses}
@@ -188,7 +189,7 @@ export default function Game() {
                 >
                   <div className="flex items-center gap-2">
                     <span className="w-6 text-center">{index + 1}</span>
-                    <span className={player.votedRematch ? "text-correct" : "text-white"}>{isMe ? "You" : id}</span>
+                    <span className={player.votedRematch ? "text-correct" : "text-white"}>{isMe ? "You" : player.username}</span>
                   </div>
 
                   <div className="flex items-center gap-1">

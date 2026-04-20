@@ -6,15 +6,15 @@ export const registerSocketHandlers = (io: Server<ClientToServerEvents, ServerTo
   io.on("connection", (socket: Socket<ClientToServerEvents, ServerToClientEvents>) => {
     socket.on("ping", () => console.log("PING received"))
 
-    socket.on("create_game", (config, callback) => {
-      const gameId = gamesManager.createGame(socket.id, config)
+    socket.on("create_game", (username, config, callback) => {
+      const gameId = gamesManager.createGame(socket.id, username, config)
 
       callback(gameId)
       emitGameState(gameId)
     })
 
-    socket.on("join_game", (gameId, callback) => {
-      const isGameJoinable = gamesManager.joinGame(socket.id, gameId)
+    socket.on("join_game", (username, gameId, callback) => {
+      const isGameJoinable = gamesManager.joinGame(socket.id, username, gameId)
 
       if (!isGameJoinable) {
         return callback({status: "error", errorMessage: "cannot join game"})

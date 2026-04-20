@@ -2,6 +2,7 @@ import type { Response } from "../socket/socketEvents.js"
 import { evaluateGuess, generateRandomWord, guessExists, type GuessResult } from "./wordle.js"
 
 export type PlayerInfo = {
+  username: string
   guesses: GuessResult[]
   score: {round: number, total: number}
   win: number | null // timestamp
@@ -28,13 +29,13 @@ class GamesManager {
     return this.games.get(gameId)
   }
 
-  createGame(playerId: string, config: Game["config"]): string {
+  createGame(playerId: string, username: string, config: Game["config"]): string {
     const gameId = Math.random().toString(36).substring(2, 8)
 
     this.games.set(gameId, {
       id: gameId,
       players: {
-        [playerId]: {guesses: [], score: {round: 0, total: 0}, win: null, votedRematch: false} 
+        [playerId]: {username, guesses: [], score: {round: 0, total: 0}, win: null, votedRematch: false} 
       },
       word: "",
       status: "waiting",
@@ -53,7 +54,7 @@ class GamesManager {
     return gameId
   }
 
-  joinGame(playerId: string, gameId: string): boolean {
+  joinGame(playerId: string, username: string, gameId: string): boolean {
     const game = this.games.get(gameId)
     if (!game) return false
 
@@ -63,7 +64,7 @@ class GamesManager {
     if (Object.keys(players).length >= game.config.maxPlayers) return false
     if (game.status === "playing") return false
     
-    players[playerId] = {guesses: [], score: {round: 0, total: 0}, win: null, votedRematch: false}
+    players[playerId] = {username, guesses: [], score: {round: 0, total: 0}, win: null, votedRematch: false}
 
     if (Object.keys(players).length >= game.config.maxPlayers) {
       this.startGame(gameId)

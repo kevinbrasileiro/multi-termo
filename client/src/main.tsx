@@ -4,6 +4,8 @@ import App from './pages/Home.tsx'
 import { BrowserRouter, Route, Routes } from 'react-router'
 import Game from './pages/Game.tsx'
 
+export const getUsername = () => localStorage.getItem("username") || `Anonymous${Math.floor(Math.random() * 1000) + 1}`
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
