@@ -23,7 +23,7 @@ export default function Row({guess, cursorIndex, onCellClick, size = 5}: RowProp
         onClick={() => onCellClick?.(i)}
         style={{width: `${size}rem`, height: `${size}rem`}}
         className={
-          `flex m-1 border-[#444] border rounded-sm justify-center items-center font-extrabold text-5xl
+          `flex m-1 border-[#444] border rounded-sm justify-center items-center font-extrabold text-${size}xl
           ${bgStyles[character.result]}
           ${cursorIndex === i ? "border-b-4" : "border-b"}
           ${onCellClick ? "cursor-pointer" : "cursor-default"}`

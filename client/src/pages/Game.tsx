@@ -62,7 +62,8 @@ export default function Game() {
     }
   }, [])
 
-  const voteRematch = () => {
+  const voteRematch = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    e.stopPropagation()
     socket.emit("vote_rematch")
   }
 
@@ -161,7 +162,7 @@ export default function Game() {
         </div>
       </div>)}
 
-      <Modal isOpen={gameStatus === "finished"}>
+      <Modal isOpen={gameStatus === "finished"} expandable={true}>
         <div className="w-full h-full flex flex-col gap-4">
           
           <div className="flex flex-col gap-1">
