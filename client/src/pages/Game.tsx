@@ -162,7 +162,7 @@ export default function Game() {
         </div>
       </div>)}
 
-      <Modal isOpen={gameStatus === "finished"} expandable={true}>
+      <Modal isOpen={gameStatus === "finished"} expandable>
         <div className="w-full h-full flex flex-col gap-4">
           
           <div className="flex flex-col gap-1">
@@ -184,13 +184,13 @@ export default function Game() {
 
               return (
                 <div key={id} className={
-                  `flex justify-between items-center px-4 py-2 rounded-lg bg-wrong 
+                  `flex justify-between items-center px-4 py-2 rounded-lg ${player.votedRematch ? "bg-correct" : "bg-wrong"}
                   ${isMe ? "border border-white" : ""}
                   `}
                 >
                   <div className="flex items-center gap-2">
                     <span className="w-6 text-center">{index + 1}</span>
-                    <span className={player.votedRematch ? "text-correct" : "text-white"}>{isMe ? "You" : player.username}</span>
+                    <span>{isMe ? "You" : player.username}</span>
                   </div>
 
                   <div className="flex items-center gap-1">
