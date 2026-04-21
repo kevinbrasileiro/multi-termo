@@ -93,7 +93,7 @@ export default function App() {
           <span>Private</span>
         </label>
 
-        <button className="border-white border-2 py-2 px-3 rounded-lg cursor-pointer" onClick={createGame}>Create Game</button>
+        <button className="border-wrong border-2 py-2 px-3 rounded-lg cursor-pointer hover:bg-wrong transition-colors duration-150" onClick={createGame}>Create Game</button>
       </div>
 
     </div>

@@ -8,6 +8,8 @@ import { getUsername } from "../main"
 
 export default function Game() {
   const [players, setPlayers] = useState<Record<string, PlayerInfo>>({})
+  const [maxPlayers, setMaxPlayers] = useState(2)
+  
   const [maxGuesses, setMaxGuesses] = useState(6)
   const [gameStatus, setGameStatus] = useState("waiting")
   const [resultWord, setResultWord] = useState("")
@@ -51,7 +53,8 @@ export default function Game() {
 
     socket.on("update_game_state", (gameState) => {
       setPlayers(gameState.players)
-      setMaxGuesses(gameState.maxGuesses)
+      setMaxPlayers(gameState.config.maxPlayers)
+      setMaxGuesses(gameState.config.maxGuesses)
       setGameStatus(gameState.status)
       setResultWord(gameState.word)
     })
@@ -161,6 +164,12 @@ export default function Game() {
           ))}
         </div>
       </div>)}
+
+      <Modal isOpen={gameStatus === "waiting"}>
+        <div className="w-full h-full flex flex-col gap-4 items-center">
+          <p>Esperando jogadores... {Object.entries(players).length}/{maxPlayers} </p>
+        </div>
+      </Modal>
 
       <Modal isOpen={gameStatus === "finished"} expandable>
         <div className="w-full h-full flex flex-col gap-4">
