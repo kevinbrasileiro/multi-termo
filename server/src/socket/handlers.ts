@@ -13,11 +13,11 @@ export const registerSocketHandlers = (io: Server<ClientToServerEvents, ServerTo
       emitGameState(gameId)
     })
 
-    socket.on("join_game", (username, gameId, callback) => {
-      const isGameJoinable = gamesManager.joinGame(socket.id, username, gameId)
+    socket.on("join_game", (gameId, username, password, callback) => {
+      const result = gamesManager.joinGame(socket.id, gameId, username, password)
 
-      if (!isGameJoinable) {
-        return callback({status: "error", errorMessage: "cannot join game"})
+      if (result !== "ok") {
+        return callback(result)
       }
       
       [...socket.rooms].forEach((room) => {
@@ -29,7 +29,7 @@ export const registerSocketHandlers = (io: Server<ClientToServerEvents, ServerTo
       socket.join(gameId)
       socket.data.gameId = gameId
 
-      callback({status: "ok"})
+      callback("ok")
       emitGameState(gameId)
     })
 

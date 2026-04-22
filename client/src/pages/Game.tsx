@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { socket } from "../socket"
-import { useNavigate, useParams } from "react-router"
+import { useParams } from "react-router"
 import Board from "../components/Board"
 import type { PlayerInfo } from "../../../server/src/game/games"
 import Modal from "../components/Modal"
-import { getUsername } from "../main"
+import { useJoinGame } from "../hooks/useJoinGame"
+import { Input } from "../components/generic/Input"
 
 export default function Game() {
   const [players, setPlayers] = useState<Record<string, PlayerInfo>>({})
@@ -20,7 +21,6 @@ export default function Game() {
   const [error, setError] = useState(false)
 
   const params = useParams()
-  const navigate = useNavigate()
 
   const me = socket.id ? players[socket.id] : undefined
   const opponents = useMemo(() => {
@@ -34,17 +34,7 @@ export default function Game() {
 
   }, [players, gameStatus])
 
-  useEffect(() => {
-    if (!params.gameId) return
-
-    socket.emit("join_game", getUsername(), params.gameId, (response) => {
-      if (response.status === "error") {
-        console.error(response.errorMessage)
-        navigate("/")
-      }
-    })
-    
-  }, [params.gameId, navigate])
+  const {password, setPassword, showPasswordModal, joinWithPassword, passwordError} = useJoinGame(params.gameId ?? "")
 
   useEffect(() => {
     socket.on("broadcast", (message) => {
@@ -168,6 +158,19 @@ export default function Game() {
       <Modal isOpen={gameStatus === "waiting"}>
         <div className="w-full h-full flex flex-col gap-4 items-center">
           <p>Esperando jogadores... {Object.entries(players).length}/{maxPlayers} </p>
+        </div>
+      </Modal>
+
+      <Modal isOpen={showPasswordModal}>
+        <div className="w-full flex flex-col items-center gap-4">
+          <Input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            error={passwordError}
+            label="Senha"
+          />
+          <button onClick={joinWithPassword} className="w-1/3 py-2 px-3 rounded-md border transition-colors duration-150  border-white text-white hover:bg-white hover:text-black cursor-pointer">Entrar</button>
         </div>
       </Modal>
 

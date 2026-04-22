@@ -1,4 +1,4 @@
-import type { Game } from "../game/games.ts"
+import type { Game, JoinGameRespose } from "../game/games.ts"
 import type { GuessResult } from "../game/wordle.ts"
 
 export type Response = {
@@ -16,7 +16,7 @@ export interface ClientToServerEvents {
   ping: () => void
 
   create_game: (username: string, config: Game["config"], callback: (gameId: string) => void) => void
-  join_game: (username: string, gameId: string, callback: (res: Response) => void) => void
+  join_game: (gameId: string, username: string, password: string | null, callback: (res: JoinGameRespose) => void) => void
 
   submit_guess: (guess: string, callback: (res: Response & {guesses: GuessResult[]}) => void) => void
   vote_rematch: () => void

@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto"
 import type { Response } from "../socket/socketEvents.js"
 import { evaluateGuess, generateRandomWord, guessExists, type GuessResult } from "./wordle.js"
 
@@ -18,9 +19,11 @@ export type Game = {
     maxPlayers: number
     maxGuesses: number
     mode: "timed" | "guesses"
-    private: boolean
+    password: string | null
   }
 }
+
+export type JoinGameRespose = "ok" | "not_found" | "full" | "already_started" | "requires_password" | "invalid_password"
 
 class GamesManager {
   private games = new Map<string, Game>()
@@ -40,10 +43,10 @@ class GamesManager {
       word: "",
       status: "waiting",
       config: {
+        ...config,
         maxPlayers: Math.max(1, Math.min(99, config.maxPlayers)),
         maxGuesses: Math.max(3, Math.min(9, config.maxGuesses)),
-        mode: config.mode,
-        private: config.private,
+        password: config.password ? createHash("sha256").update(config.password).digest("hex") : null
       }
     })
 
@@ -54,23 +57,30 @@ class GamesManager {
     return gameId
   }
 
-  joinGame(playerId: string, username: string, gameId: string): boolean {
+  joinGame(playerId: string, gameId: string, username: string, password: string | null): JoinGameRespose {
     const game = this.games.get(gameId)
-    if (!game) return false
+    if (!game) return "not_found"
 
     const players = game.players
-    if (players[playerId]) return true
+    if (players[playerId]) return "ok"
     
-    if (Object.keys(players).length >= game.config.maxPlayers) return false
-    if (game.status === "playing") return false
-    
+    if (Object.keys(players).length >= game.config.maxPlayers) return "full"
+    if (game.status === "playing") return "already_started"
+
+    if (game.config.password) {
+      if (!password) return "requires_password"
+
+      const hashedPassword = password ? createHash("sha256").update(password).digest("hex") : null
+      if (game.config.password !== hashedPassword) return "invalid_password"
+    }
+
     players[playerId] = {username, guesses: [], score: {round: 0, total: 0}, win: null, votedRematch: false}
 
     if (Object.keys(players).length >= game.config.maxPlayers) {
       this.startGame(gameId)
     }
 
-    return true
+    return "ok"
   }
 
   leaveGame(playerId: string, gameId: string) {

@@ -7,7 +7,7 @@ import type { Game } from "../../../server/src/game/games"
 import { getUsername } from "../main"
 
 export default function App() {
-  const [gameConfig, setGameConfig] = useState<Game["config"]>({maxPlayers: 2, maxGuesses: 6, mode: "guesses", private: true})
+  const [gameConfig, setGameConfig] = useState<Game["config"]>({maxPlayers: 2, maxGuesses: 6, mode: "guesses", password: null})
   const [username, setUsername] = useState(getUsername())
 
   const navigate = useNavigate()
@@ -68,30 +68,12 @@ export default function App() {
           ]}
         />
 
-        <label className="flex items-center gap-3 cursor-pointer">
-          <input
-            type="checkbox"
-            checked={gameConfig.private}
-            onChange={(e) =>
-              handleGameConfigChange("private", e.target.checked)
-            }
-            className="hidden"
-          />
-
-          <span
-            className={`w-10 h-5 flex items-center rounded-full p-0.5 transition-colors
-              ${gameConfig.private ? "bg-correct" : "bg-wrong"}
-            `}
-          >
-            <span
-              className={`w-4 h-4 bg-white rounded-full shadow-md transform transition-transform duration-200
-                ${gameConfig.private ? "translate-x-5" : "translate-x-0"}
-              `}
-            />
-          </span>
-
-          <span>Private</span>
-        </label>
+        <Input 
+          type="password"
+          value={gameConfig.password || ""}
+          onChange={(e) => handleGameConfigChange("password", e.target.value)}
+          label="Password?"
+        />
 
         <button className="border-wrong border-2 py-2 px-3 rounded-lg cursor-pointer hover:bg-wrong transition-colors duration-150" onClick={createGame}>Create Game</button>
       </div>
