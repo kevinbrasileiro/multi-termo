@@ -1,20 +1,13 @@
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { socket } from "../socket"
 import { useParams } from "react-router"
 import Board from "../components/Board"
-import type { PlayerInfo } from "../../../server/src/game/games"
 import Modal from "../components/Modal"
 import { useJoinGame } from "../hooks/useJoinGame"
 import { Input } from "../components/generic/Input"
+import { useGameState } from "../hooks/useGameState"
 
-export default function Game() {
-  const [players, setPlayers] = useState<Record<string, PlayerInfo>>({})
-  const [maxPlayers, setMaxPlayers] = useState(2)
-  
-  const [maxGuesses, setMaxGuesses] = useState(6)
-  const [gameStatus, setGameStatus] = useState("waiting")
-  const [resultWord, setResultWord] = useState("")
-
+export default function Game() {  
   const [currentGuess, setCurrentGuess] = useState("")
   const [cursorIndex, setCursorIndex] = useState(0)
 
@@ -22,38 +15,9 @@ export default function Game() {
 
   const params = useParams()
 
-  const me = socket.id ? players[socket.id] : undefined
-  const opponents = useMemo(() => {
-    return Object.entries(players).filter(([id]) => id !== socket.id)
-  }, [players])
-
-  const sortedPlayers = useMemo(() => {
-    if (gameStatus !== "finished") return []
-
-    return Object.entries(players).sort((a, b) => b[1].score.total - a[1].score.total)
-
-  }, [players, gameStatus])
-
   const {password, setPassword, showPasswordModal, joinWithPassword, passwordError} = useJoinGame(params.gameId ?? "")
+  const {me, opponents, sortedPlayers, gameStatus, gameWord, gameConfig} = useGameState()
 
-  useEffect(() => {
-    socket.on("broadcast", (message) => {
-      console.log(message)
-    })
-
-    socket.on("update_game_state", (gameState) => {
-      setPlayers(gameState.players)
-      setMaxPlayers(gameState.config.maxPlayers)
-      setMaxGuesses(gameState.config.maxGuesses)
-      setGameStatus(gameState.status)
-      setResultWord(gameState.word)
-    })
-
-    return () => {
-      socket.off("broadcast")
-      socket.off("update_game_state")
-    }
-  }, [])
 
   const voteRematch = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     e.stopPropagation()
@@ -131,7 +95,7 @@ export default function Game() {
           <Board 
             currentGuess={currentGuess}
             playerGuesses={me.guesses}
-            maxGuesses={maxGuesses}
+            maxGuesses={gameConfig.maxGuesses}
             cursorIndex={cursorIndex}
             setCursorIndex={setCursorIndex}
             size={5}
@@ -141,11 +105,11 @@ export default function Game() {
       {opponents.length > 0 && (<div className="max-h-full">
         <div className="flex flex-wrap justify-center gap-6 max-w-6xl py-4">
           {opponents.map(([id, player]) => (
-            <div key={id} className={`flex flex-col items-center ${(player.win || player.guesses.length >= maxGuesses )? "opacity-50" : ""} ${opponents.length <= 6 ? "w-70" : "w-50"}`}>
+            <div key={id} className={`flex flex-col items-center ${(player.win || player.guesses.length >= gameConfig.maxGuesses )? "opacity-50" : ""} ${opponents.length <= 6 ? "w-70" : "w-50"}`}>
               <p className="w-full text-center truncate">{`${player.username} (${player.score.total})`}</p>
               <Board
                 playerGuesses={player.guesses}
-                maxGuesses={maxGuesses}
+                maxGuesses={gameConfig.maxGuesses}
                 currentGuess=""
                 cursorIndex={-1}
                 size={opponents.length <= 6 ? 3 : 2}
@@ -157,7 +121,7 @@ export default function Game() {
 
       <Modal isOpen={gameStatus === "waiting"}>
         <div className="w-full h-full flex flex-col gap-4 items-center">
-          <p>Esperando jogadores... {Object.entries(players).length}/{maxPlayers} </p>
+          <p>Esperando jogadores... {opponents.length + 1}/{gameConfig.maxPlayers} </p>
         </div>
       </Modal>
 
@@ -181,11 +145,11 @@ export default function Game() {
             <h2 className={`text-2xl font-bold text-center ${me?.win ? "text-correct" : "text-danger"}`}>RESULTADOS</h2>
             {me?.win ? (
             <p className="text-center">
-              Você acertou a palavra <span className="font-bold">{resultWord}</span> em {me.guesses.length} tentativas
+              Você acertou a palavra <span className="font-bold">{gameWord}</span> em {me.guesses.length} tentativas
             </p>
             ) : (
             <p className="text-center">
-              Você não pontuou. A palavra era <span className="font-bold">{resultWord}</span>
+              Você não pontuou. A palavra era <span className="font-bold">{gameWord}</span>
             </p>
             )}
           </div>

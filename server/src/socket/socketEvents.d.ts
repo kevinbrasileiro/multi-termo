@@ -6,10 +6,17 @@ export type Response = {
   errorMessage?: string
 }
 
+export type GameStateType = {
+  players: Game["players"],
+  status: Game["status"],
+  config: Game["config"],
+  word: Game["word"]
+}
+
 export interface ServerToClientEvents {
   broadcast: (message: string) => void
   
-  update_game_state: (gameState: {players: Game["players"], status: Game["status"], config: Game["config"], word: string}) => void
+  update_game_state: (gameState: GameStateType) => void
 }
 
 export interface ClientToServerEvents {

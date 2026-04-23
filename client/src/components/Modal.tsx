@@ -29,7 +29,7 @@ export default function Modal({isOpen, expandable, children}: ModalProps) {
     >
       <div
         onClick={handleModalClick} 
-        className={`absolute left-1/2 -translate-x-1/2 top-1/2 bg-zinc-900 rounded-lg w-full max-w-md p-6 shadow-lg ${expandable ? isExpanded ? "-translate-y-1/2 cursor-default" : "translate-y-[38vh] cursor-pointer" : "-translate-y-1/2 cursor-default"} transition-transform duration-300`}
+        className={`absolute left-1/2 -translate-x-1/2 top-1/2 bg-zinc-900 border border-wrong-light rounded-lg w-full max-w-md p-6 shadow-lg ${expandable ? isExpanded ? "-translate-y-1/2 cursor-default" : "translate-y-[38vh] cursor-pointer" : "-translate-y-1/2 cursor-default"} transition-transform duration-300`}
       >
         {expandable && (
           <div className="w-full flex justify-center mb-1">
