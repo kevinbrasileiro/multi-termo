@@ -11,7 +11,8 @@ export default function Game() {
   const [currentGuess, setCurrentGuess] = useState("")
   const [cursorIndex, setCursorIndex] = useState(0)
 
-  const [error, setError] = useState(false)
+  const [isErrorShake, setIsErrorShake] = useState(false)
+  const [guessError, setGuessError] = useState("")
 
   const params = useParams()
 
@@ -27,12 +28,20 @@ export default function Game() {
   const submitGuess = (guess: string) => {
     socket.emit("submit_guess", guess, (response) => {
       if (response.status === "error") {
-        setError(false)
+        setGuessError(response.errorMessage || "")
+        setTimeout(() => {
+          setGuessError("")
+        }, 3000)
+
+        setIsErrorShake(false)
         requestAnimationFrame(() => {
-          setError(true)
+          setIsErrorShake(true)
         })
+
         return
       }
+
+      setGuessError("")
       setCurrentGuess("")
       setCursorIndex(0)
     })
@@ -90,7 +99,7 @@ export default function Game() {
   return (
     <div className="w-screen h-screen flex justify-center items-center gap-10 overflow-y-auto">
       {me && (
-        <div className={`flex flex-col items-center ${error ? "animate-shake" : ""}`}>
+        <div className={`flex flex-col items-center ${isErrorShake ? "animate-shake" : ""}`}>
           <p className="w-full text-center truncate">{`${me.username} (${me.score.total})`}</p>
           <Board 
             currentGuess={currentGuess}
@@ -99,6 +108,7 @@ export default function Game() {
             cursorIndex={cursorIndex}
             setCursorIndex={setCursorIndex}
             size={5}
+            guessError={guessError}
           />
         </div>
       )}

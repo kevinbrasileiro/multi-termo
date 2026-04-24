@@ -163,11 +163,11 @@ class GamesManager {
     const normalizedGuess = guess.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase()
 
     if (normalizedGuess.length !== 5) {
-      return { status: "error", errorMessage: "Invalid length", guesses: player.guesses }
+      return { status: "error", errorMessage: "Palavra deve ter 5 letras", guesses: player.guesses }
     }
 
     if (!guessExists(normalizedGuess)) {
-      return { status: "error", errorMessage: "Word cannot be accepted", guesses: player.guesses}
+      return { status: "error", errorMessage: "Palavra não é aceita", guesses: player.guesses}
     }
 
     const result = evaluateGuess(normalizedGuess, game.word)
