@@ -28,7 +28,7 @@ const baseStyle ="relative focus:outline-none transition-colors duration-150 rou
   }[size]
 
   const variantStyles = {
-    primary: "border-wrong-light hover:border-correct",
+    primary: `border-wrong-light ${disabled ? "" : "hover:border-correct"}`,
     secondary: "border-white text-white hover:bg-white hover:text-black",
     danger: "text-danger border-danger hover:bg-danger hover:border-danger hover:text-white",
   }[variant]
