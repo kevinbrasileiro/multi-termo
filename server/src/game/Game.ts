@@ -29,7 +29,6 @@ export class Game {
     if (this.config.maxPlayers <= 1) {
       this.start()
     }
-
   }
 
   private createPlayer(username: string): PlayerInfo {
@@ -193,8 +192,8 @@ export class Game {
         })
       ),
       status: this.status,
-      config: this.config,
-      word: this.status === "finished" ? this.word : ""
+      word: this.status === "finished" ? this.word : "",
+      config: {...this.config, password: ""},
     }
   }
 }

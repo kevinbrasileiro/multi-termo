@@ -1,3 +1,5 @@
+import type { Game } from "./Game.ts"
+
 export type GuessResult = {letter: string, result: "correct" | "present" | "wrong" | "empty"}[]
 
 export type PlayerInfo = {
@@ -18,8 +20,8 @@ export type GameConfig = {
 export type GameState = {
   players: Game["players"],
   status: Game["status"],
-  config: Game["config"],
   word: Game["word"]
+  config: GameConfig,
 }
 
 export type JoinGameResponse = "ok" | "not_found" | "full" | "already_started" | "requires_password" | "invalid_password"
