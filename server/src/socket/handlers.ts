@@ -14,7 +14,10 @@ export const registerSocketHandlers = (io: Server<ClientToServerEvents, ServerTo
     })
 
     socket.on("join_game", (gameId, username, password, callback) => {
-      const result = gamesManager.joinGame(socket.id, gameId, username, password)
+      const game = gamesManager.getGame(gameId)
+      if (!game) return callback("not_found")
+
+      const result = game.join(socket.id, username, password)
 
       if (result !== "ok") {
         return callback(result)

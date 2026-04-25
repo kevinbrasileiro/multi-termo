@@ -30,13 +30,6 @@ class GamesManager {
     return gameId
   }
 
-  joinGame(playerId: string, gameId: string, username: string, password: string | null): JoinGameResponse {
-    const game = this.games.get(gameId)
-    if (!game) return "not_found"
-
-    return game.join(playerId, username, password)
-  }
-
   leaveGame(playerId: string, gameId: string) {
     const game = this.games.get(gameId)
     if (!game) return
