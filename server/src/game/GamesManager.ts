@@ -1,6 +1,9 @@
 import { Game } from "./Game.js"
 import type { GameConfig, JoinGameResponse } from "./types.js"
 
+const GAMEID_CREATION_TRIES = 10
+const GAMEID_SIZE = 6
+
 class GamesManager {
   private games = new Map<string, Game>()
 
@@ -9,7 +12,17 @@ class GamesManager {
   }
 
   createGame(playerId: string, username: string, config: GameConfig): string {
-    const gameId = Math.random().toString(36).substring(2, 8)
+    let gameId = ""
+    for (let i = 0; i < GAMEID_CREATION_TRIES; i++) {
+      const possibleId = Math.random().toString(36).substring(2, GAMEID_SIZE + 2)
+
+      if (!this.games.has(possibleId)) {
+        gameId = possibleId
+        break
+      }
+    }
+
+    if (!gameId) throw new Error(`could not generate valid game id after ${GAMEID_CREATION_TRIES} tries`)
     
     const game = new Game(gameId, playerId, username, config)
     this.games.set(gameId, game)
