@@ -25,7 +25,7 @@ export function useJoinGame(gameId: string) {
           return
 
         case "invalid_password":
-          setPasswordError("Invalid Password")
+          setPasswordError("Senha Incorreta")
           return
         
         default:

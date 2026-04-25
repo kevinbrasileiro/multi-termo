@@ -217,7 +217,7 @@ export default function Game() {
                 >
                   <div className="flex items-center gap-2">
                     <span className="w-6 text-center">{index + 1}</span>
-                    <span>{isMe ? "You" : player.username}</span>
+                    <span>{isMe ? "Você" : player.username}</span>
                   </div>
 
                   <div className="flex items-center gap-1">

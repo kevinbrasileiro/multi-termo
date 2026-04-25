@@ -33,7 +33,7 @@ export default function App() {
         <Input
           value={username}
           onChange={(e) => setUsername(e.target.value)}
-          label="Username"
+          label="Nome de Usuário"
         />
       </div>
       <div className="w-72 flex flex-col gap-8">
@@ -44,7 +44,7 @@ export default function App() {
             max={99}
             value={gameConfig.maxPlayers}
             onChange={(e) => handleGameConfigChange("maxPlayers", parseFloat(e.target.value))}
-            label="Player Amount"
+            label="Jogadores"
             className="text-center"
           />
           <Input 
@@ -53,19 +53,19 @@ export default function App() {
             max={9}
             value={gameConfig.maxGuesses}
             onChange={(e) => handleGameConfigChange("maxGuesses", parseFloat(e.target.value))}
-            label="Max Guesses"
+            label="Tentativas"
             className="text-center"
           />
         </div>
 
         <Radio 
           name="mode"
-          label="Game Mode"
+          label="Modo de Jogo"
           value={gameConfig.mode}
           onChange={(option) => handleGameConfigChange("mode", option)}
           options={[
-            {label: "Guesses", value: "guesses"},
-            {label: "Timed", value: "timed"},
+            {label: "Tentativas", value: "guesses"},
+            {label: "Tempo", value: "timed"},
           ]}
         />
 
@@ -73,10 +73,10 @@ export default function App() {
           type="password"
           value={gameConfig.password || ""}
           onChange={(e) => handleGameConfigChange("password", e.target.value)}
-          label="Password?"
+          label="Senha (opcional)"
         />
 
-        <Button variant="primary" onClick={createGame}>Create Game</Button>
+        <Button variant="primary" onClick={createGame}>Criar Jogo</Button>
       </div>
     </div>
   )
