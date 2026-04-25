@@ -5,6 +5,7 @@ import { useNavigate } from "react-router"
 import { Radio } from "../components/generic/Radio"
 import { getUsername } from "../main"
 import type { GameConfig } from "../../../server/src/game/types"
+import Button from "../components/generic/Button"
 
 export default function App() {
   const [gameConfig, setGameConfig] = useState<GameConfig>({maxPlayers: 2, maxGuesses: 6, mode: "guesses", password: null})
@@ -75,9 +76,8 @@ export default function App() {
           label="Password?"
         />
 
-        <button className="border-wrong border-2 py-2 px-3 rounded-lg cursor-pointer hover:bg-wrong transition-colors duration-150" onClick={createGame}>Create Game</button>
+        <Button variant="primary" onClick={createGame}>Create Game</Button>
       </div>
-
     </div>
   )
 }

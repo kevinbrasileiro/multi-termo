@@ -6,6 +6,7 @@ import Modal from "../components/Modal"
 import { useJoinGame } from "../hooks/useJoinGame"
 import { Input } from "../components/generic/Input"
 import { useGameState } from "../hooks/useGameState"
+import Button from "../components/generic/Button"
 
 export default function Game() {  
   const [currentGuess, setCurrentGuess] = useState("")
@@ -112,7 +113,7 @@ export default function Game() {
             maxGuesses={gameConfig.maxGuesses}
             cursorIndex={cursorIndex}
             setCursorIndex={setCursorIndex}
-            size={5}
+            size={"lg"}
             guessError={guessError}
           />
         </div>
@@ -127,7 +128,7 @@ export default function Game() {
                 maxGuesses={gameConfig.maxGuesses}
                 currentGuess=""
                 cursorIndex={-1}
-                size={opponents.length <= 6 ? 3 : 2}
+                size={opponents.length <= 6 ? "md" : "sm"}
               />
             </div>
           ))}
@@ -149,7 +150,7 @@ export default function Game() {
             error={passwordError}
             label="Senha"
           />
-          <button onClick={joinWithPassword} className="w-1/3 py-2 px-3 rounded-md border transition-colors duration-150  border-white text-white hover:bg-white hover:text-black cursor-pointer">Entrar</button>
+          <Button className="w-1/3" onClick={joinWithPassword}>Entrar</Button>
         </div>
       </Modal>
 
@@ -193,18 +194,12 @@ export default function Game() {
             })}
           </div>
 
-          <button
+          <Button
             disabled={me?.votedRematch}
-            className={`
-              py-2 px-3 rounded-md border transition-colors duration-150
-              ${me?.votedRematch
-                ? "bg-correct border-0 text-white cursor-default"
-                : "border-white text-white hover:bg-white hover:text-black cursor-pointer"}
-            `}
             onClick={voteRematch}
           >
-            {me?.votedRematch ? "Waiting for others..." : "Rematch"}
-          </button>
+            {me?.votedRematch ? "Esperando outros jogadores..." : "Jogar Novamente"}
+          </Button>
 
         </div>
       </Modal>

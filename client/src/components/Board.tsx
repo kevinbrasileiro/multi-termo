@@ -6,7 +6,7 @@ type BoardProps = {
   maxGuesses: number
   currentGuess: string
   cursorIndex: number
-  size: number
+  size: "sm" | "md" | "lg"
   setCursorIndex?: (index: number) => void
   guessError?: string
 }
