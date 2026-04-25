@@ -1,6 +1,6 @@
 import type { Server, Socket } from "socket.io";
 import type { ClientToServerEvents, InterServerEvents, ServerToClientEvents, SocketData } from "./socketEvents.js";
-import { gamesManager } from "../game/games.js";
+import { gamesManager } from "../game/GamesManager.js";
 
 export const registerSocketHandlers = (io: Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>) => {
   io.on("connection", (socket: Socket<ClientToServerEvents, ServerToClientEvents>) => {
@@ -34,23 +34,23 @@ export const registerSocketHandlers = (io: Server<ClientToServerEvents, ServerTo
     })
 
     socket.on("submit_guess", (guess, callback) => {
-      const gameId = socket.data.gameId
-      if (!gameId) return
+      const game = gamesManager.getGame(socket.data.gameId)
+      if (!game) return
 
-      const result = gamesManager.submitGuess(socket.id, gameId, guess)
+      const result = game.submitGuess(socket.id, guess)
       callback(result)
 
       if (result.status === "ok") {
-        emitGameState(gameId)
+        emitGameState(game.id)
       }
     })
 
     socket.on("vote_rematch", () => {
-      const gameId = socket.data.gameId
-      if (!gameId) return
+      const game = gamesManager.getGame(socket.data.gameId)
+      if (!game) return
 
-      gamesManager.voteRematch(socket.id, gameId)
-      emitGameState(gameId)
+      game.voteRematch(socket.id)
+      emitGameState(game.id)
     })
 
     socket.on("disconnect", () => {
@@ -66,7 +66,7 @@ export const registerSocketHandlers = (io: Server<ClientToServerEvents, ServerTo
       if (!game) return
 
       Object.keys(game.players).forEach((playerId) => {
-        const state = gamesManager.getFormattedGameState(playerId, gameId)
+        const state = game.getFormattedGameState(playerId)
         if (!state) return
 
         io.to(playerId).emit("update_game_state", state)

@@ -1,17 +1,6 @@
-import type { Game, JoinGameRespose } from "../game/games.ts"
+import type { Game, JoinGameRespose } from "../game/GamesManager.ts"
+import type { SubmitGuessRespone } from "../game/types.js"
 import type { GuessResult } from "../game/wordle.ts"
-
-export type Response = {
-  status: "ok" | "error"
-  errorMessage?: string
-}
-
-export type GameStateType = {
-  players: Game["players"],
-  status: Game["status"],
-  config: Game["config"],
-  word: Game["word"]
-}
 
 export interface ServerToClientEvents {
   broadcast: (message: string) => void
@@ -25,7 +14,7 @@ export interface ClientToServerEvents {
   create_game: (username: string, config: Game["config"], callback: (gameId: string) => void) => void
   join_game: (gameId: string, username: string, password: string | null, callback: (res: JoinGameRespose) => void) => void
 
-  submit_guess: (guess: string, callback: (res: Response & {guesses: GuessResult[]}) => void) => void
+  submit_guess: (guess: string, callback: (res: SubmitGuessRespone) => void) => void
   vote_rematch: () => void
 }
 

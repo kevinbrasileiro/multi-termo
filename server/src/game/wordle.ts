@@ -1,7 +1,6 @@
 import { readFileSync } from "node:fs";
 import path from "path";
-
-export type GuessResult = {letter: string, result: "correct" | "present" | "wrong" | "empty"}[]
+import type { GuessResult } from "./types.js";
 
 export const evaluateGuess = (guess: string, targetWord: string): GuessResult => {
   const splitGuess = guess.split("")

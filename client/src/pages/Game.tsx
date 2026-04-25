@@ -11,7 +11,7 @@ export default function Game() {
   const [currentGuess, setCurrentGuess] = useState("")
   const [cursorIndex, setCursorIndex] = useState(0)
 
-  const [isErrorShake, setIsErrorShake] = useState(false)
+  const [errorShake, setErrorShake] = useState(false)
   const [guessError, setGuessError] = useState("")
 
   const params = useParams()
@@ -27,23 +27,28 @@ export default function Game() {
 
   const submitGuess = (guess: string) => {
     socket.emit("submit_guess", guess, (response) => {
-      if (response.status === "error") {
-        setGuessError(response.errorMessage || "")
-        setTimeout(() => {
+      switch (response.status) {
+        case "incorrect_length":
+          setGuessError("A palavra deve ter 5 letras")
+          setErrorShake(true)
+          setTimeout(() => setErrorShake(false), 500)
+          return
+        case "not_on_wordlist":
+          setGuessError("A palavra não pode ser aceita")
+          setErrorShake(true)
+          setTimeout(() => setErrorShake(false), 500)
+          return
+        
+        case "ok":
           setGuessError("")
-        }, 3000)
+          setCurrentGuess("")
+          setCursorIndex(0)
+          return
 
-        setIsErrorShake(false)
-        requestAnimationFrame(() => {
-          setIsErrorShake(true)
-        })
-
-        return
+        default:
+          console.log(response)
+          return
       }
-
-      setGuessError("")
-      setCurrentGuess("")
-      setCursorIndex(0)
     })
   }
 
@@ -99,7 +104,7 @@ export default function Game() {
   return (
     <div className="w-screen h-screen flex justify-center items-center gap-10 overflow-y-auto">
       {me && (
-        <div className={`flex flex-col items-center ${isErrorShake ? "animate-shake" : ""}`}>
+        <div className={`flex flex-col items-center ${errorShake ? "animate-shake" : ""}`}>
           <p className="w-full text-center truncate">{`${me.username} (${me.score.total})`}</p>
           <Board 
             currentGuess={currentGuess}

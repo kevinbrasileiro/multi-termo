@@ -3,11 +3,11 @@ import { Input } from "../components/generic/Input"
 import { socket } from "../socket"
 import { useNavigate } from "react-router"
 import { Radio } from "../components/generic/Radio"
-import type { Game } from "../../../server/src/game/games"
 import { getUsername } from "../main"
+import type { GameConfig } from "../../../server/src/game/types"
 
 export default function App() {
-  const [gameConfig, setGameConfig] = useState<Game["config"]>({maxPlayers: 2, maxGuesses: 6, mode: "guesses", password: null})
+  const [gameConfig, setGameConfig] = useState<GameConfig>({maxPlayers: 2, maxGuesses: 6, mode: "guesses", password: null})
   const [username, setUsername] = useState(getUsername())
 
   const navigate = useNavigate()

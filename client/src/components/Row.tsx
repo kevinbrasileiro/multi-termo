@@ -1,4 +1,4 @@
-import type { GuessResult } from "../../../server/src/game/wordle"
+import type { GuessResult } from "../../../server/src/game/types"
 
 type RowProps = {
   guess: GuessResult
