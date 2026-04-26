@@ -24,6 +24,9 @@ export default function App() {
 
   const redirectToRandomGame = () => {
     socket.emit("get_random_game", (gameId) => {
+      if (!gameId) {
+        return console.error("could not find available game")
+      }
       navigate(`/game/${gameId}`)
     })
   }
