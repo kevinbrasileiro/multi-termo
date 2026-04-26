@@ -66,7 +66,6 @@ export class Game {
     delete this.players[playerId]
 
     if (Object.keys(this.players).length === 1) this.status = "waiting"
-    if (Object.keys(this.players).length === 0) return "delete"
   }
 
   start() {

@@ -13,7 +13,7 @@ class GamesManager {
 
   getRandomPublicGame() {
     const publicGames = [...this.games].filter(([_, game]) => {
-      return game.config.password === null
+      return game.config.password === null && game.status === "waiting"
     })
 
     const randomGame = publicGames[Math.floor(Math.random() * publicGames.length)]
@@ -43,9 +43,9 @@ class GamesManager {
     const game = this.games.get(gameId)
     if (!game) return
 
-    const result = game.leave(playerId)
+    game.leave(playerId)
 
-    if (result === "delete") {
+    if (Object.keys(game.players).length <= 0) {
       this.games.delete(gameId)
     }
   }

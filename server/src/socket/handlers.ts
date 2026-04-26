@@ -42,6 +42,14 @@ export const registerSocketHandlers = (io: Server<ClientToServerEvents, ServerTo
       callback(publicGame?.id || "")
     })
 
+    socket.on("disconnect", () => {
+      const gameId = socket.data.gameId
+      if (!gameId) return
+
+      gamesManager.leaveGame(socket.id, gameId)
+      emitGameState(gameId)
+    })
+
     socket.on("submit_guess", (guess, callback) => {
       const game = gamesManager.getGame(socket.data.gameId)
       if (!game) return
@@ -60,14 +68,6 @@ export const registerSocketHandlers = (io: Server<ClientToServerEvents, ServerTo
 
       game.voteRematch(socket.id)
       emitGameState(game.id)
-    })
-
-    socket.on("disconnect", () => {
-      const gameId = socket.data.gameId
-      if (!gameId) return
-
-      gamesManager.leaveGame(socket.id, gameId)
-      emitGameState(gameId)
     })
 
     const emitGameState = (gameId: string) => {
