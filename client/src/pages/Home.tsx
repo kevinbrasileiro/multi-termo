@@ -22,6 +22,12 @@ export default function App() {
     })
   }
 
+  const redirectToRandomGame = () => {
+    socket.emit("get_random_game", (gameId) => {
+      navigate(`/game/${gameId}`)
+    })
+  }
+
   const handleGameConfigChange = (field: string, value: string | number | boolean) => {
     setGameConfig(prev => ({
       ...prev,
@@ -43,7 +49,7 @@ export default function App() {
 
         <div className="w-full flex gap-2">
           <Button variant="primary" size="md" fullWidth onClick={() => setShowCreateModal(true)}>Criar Jogo</Button>
-          <Button variant="primary" size="md" fullWidth onClick={() => setShowCreateModal(true)}>Entrar Jogo</Button>
+          <Button variant="primary" size="md" fullWidth onClick={redirectToRandomGame}>Entrar Jogo</Button>
         </div>
 
       </div>

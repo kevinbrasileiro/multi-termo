@@ -36,6 +36,12 @@ export const registerSocketHandlers = (io: Server<ClientToServerEvents, ServerTo
       emitGameState(gameId)
     })
 
+    socket.on("get_random_game", (callback) => {
+      const publicGame = gamesManager.getRandomPublicGame()
+      
+      callback(publicGame?.id || "")
+    })
+
     socket.on("submit_guess", (guess, callback) => {
       const game = gamesManager.getGame(socket.data.gameId)
       if (!game) return

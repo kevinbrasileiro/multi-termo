@@ -11,6 +11,15 @@ class GamesManager {
     return this.games.get(gameId)
   }
 
+  getRandomPublicGame() {
+    const publicGames = [...this.games].filter(([_, game]) => {
+      return game.config.password === null
+    })
+
+    const randomGame = publicGames[Math.floor(Math.random() * publicGames.length)]
+    return randomGame?.[1]
+  }
+
   createGame(playerId: string, username: string, config: GameConfig): string {
     let gameId = ""
     for (let i = 0; i < GAMEID_CREATION_TRIES; i++) {

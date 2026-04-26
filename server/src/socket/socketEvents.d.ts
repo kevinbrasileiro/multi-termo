@@ -11,6 +11,7 @@ export interface ClientToServerEvents {
 
   create_game: (username: string, config: GameConfig, callback: (gameId: string) => void) => void
   join_game: (gameId: string, username: string, password: string | null, callback: (res: JoinGameResponse) => void) => void
+  get_random_game: (callback: (gameId: string) => void) => void
 
   submit_guess: (guess: string, callback: (res: SubmitGuessRespone) => void) => void
   vote_rematch: () => void
