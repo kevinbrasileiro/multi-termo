@@ -34,8 +34,11 @@ export default function Modal({
 
   return (
     <div 
-      className={`fixed inset-0 ${(isExpanded || !expandable) ? "bg-black-70 backdrop-blur-sm" : ""} z-50`}
-      onClick={handleBackdropClick}
+    className={`fixed inset-0 ${(isExpanded || !expandable) ? "bg-black/25 backdrop-blur-sm" : ""} z-50`}
+      onMouseDown={(e) => {
+       if (e.target !== e.currentTarget) return
+       handleBackdropClick()
+      }}
     >
       <div
         onClick={handleModalClick} 

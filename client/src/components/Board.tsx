@@ -36,7 +36,7 @@ export default function Board({playerGuesses, maxGuesses, currentGuess, cursorIn
   ]
 
   return (
-    <div className="relative">
+    <div className="relative bg-dark">
       {filledGuesses.map((guess, i) => (
         <Row 
           key={i}
