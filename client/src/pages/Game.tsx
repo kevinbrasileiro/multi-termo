@@ -137,7 +137,7 @@ export default function Game() {
         </div>
       </div>)}
 
-      <Modal isOpen={gameStatus === "waiting"}>
+      <Modal isOpen={gameStatus === "waiting" && !showPasswordModal}>
         <div className="w-full h-full flex flex-col gap-4 items-center">
 
           <h2 className="text-2xl font-bold">Aguardando Jogadores... {opponents.length + 1}/{gameConfig.maxPlayers}</h2>

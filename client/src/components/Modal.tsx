@@ -4,9 +4,15 @@ type ModalProps = {
   isOpen: boolean
   expandable?: boolean
   children: React.ReactNode
+  handleOutsideClick?: () => void
 }
 
-export default function Modal({isOpen, expandable, children}: ModalProps) {
+export default function Modal({
+  isOpen, 
+  expandable, 
+  children,
+  handleOutsideClick,
+}: ModalProps) {
   const [isExpanded, setIsExpanded] = useState(true)
 
   if (!isOpen) return null
@@ -18,6 +24,10 @@ export default function Modal({isOpen, expandable, children}: ModalProps) {
   }
 
   const handleBackdropClick = () => {
+    if (handleOutsideClick) {
+      return handleOutsideClick()
+    }
+
     if (!isExpanded || !expandable) return
     setIsExpanded(false)
   }

@@ -24,6 +24,9 @@
 
 body {
   background-color: var(--color-dark);
+  background-image: radial-gradient(circle, var(--color-wrong) 1px, var(--color-dark) 1px);
+  background-size: 20px 20px;
+  background-position: center center;
   color: white;
 }
 

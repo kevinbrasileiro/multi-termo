@@ -19,12 +19,12 @@ export default function Button({
   ...props
 }: ButtonProps) {
 
-const baseStyle ="relative focus:outline-none transition-colors duration-150 rounded-lg"
+const baseStyle ="relative focus:outline-none transition-colors duration-150 rounded-lg bg-dark"
 
   const sizeStyles = {
     sm: "px-2 py-1 text-sm border-1",
     md: "px-3 py-2 text-base border-2",
-    lg: "px-4 py-3 text-lg border-3",
+    lg: "px-4 py-3 text-lg border-3 tracking-wider",
   }[size]
 
   const variantStyles = {

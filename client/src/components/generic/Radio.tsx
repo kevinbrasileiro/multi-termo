@@ -44,7 +44,7 @@ export function Radio({
                 {...props}
               />
 
-              <span className="flex items-center justify-center w-4 h-4 rounded-full border border-wrong">
+              <span className="flex items-center justify-center w-4 h-4 rounded-full border border-wrong bg-dark">
                 <span
                   className={`w-3 h-3 rounded-full bg-correct transition-transform duration-150
                     ${isSelected ? "scale-100" : "scale-0"}
