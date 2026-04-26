@@ -74,12 +74,10 @@ export const registerSocketHandlers = (io: Server<ClientToServerEvents, ServerTo
       const game = gamesManager.getGame(gameId)
       if (!game) return
 
-      Object.keys(game.players).forEach((playerId) => {
-        const state = game.getFormattedGameState(playerId)
-        if (!state) return
+      const state = game.getSharedGameState() 
+      if (!state) return
 
-        io.to(playerId).emit("update_game_state", state)
-      })
+      io.to(game.id).emit("update_game_state", state)
     }
   })
 }

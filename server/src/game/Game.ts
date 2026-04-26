@@ -172,17 +172,13 @@ export class Game {
     })
   }
 
-  getFormattedGameState(playerId: string): GameState {
-    console.dir(this)
-
+  getSharedGameState(): GameState {
     return {
       players: Object.fromEntries(
         Object.entries(this.players).map(([id, player]) => {
-          const isOwner = id === playerId
-
           return [id,
             {...player, guesses: player.guesses.map((guess) =>
-              isOwner ? guess : guess.map((guess) => ({
+              guess.map((guess) => ({
                 ...guess,
                 letter: this.status === "playing" ? "" : guess.letter, 
               }))

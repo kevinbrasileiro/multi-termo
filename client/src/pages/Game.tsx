@@ -7,8 +7,10 @@ import { useJoinGame } from "../hooks/useJoinGame"
 import { Input } from "../components/generic/Input"
 import { useGameState } from "../hooks/useGameState"
 import Button from "../components/generic/Button"
+import type { GuessResult } from "../../../server/src/game/types"
 
 export default function Game() {  
+  const [myGuesses, setMyGuesses] = useState<GuessResult[]>([])
   const [currentGuess, setCurrentGuess] = useState("")
   const [cursorIndex, setCursorIndex] = useState(0)
 
@@ -21,7 +23,6 @@ export default function Game() {
 
   const {password, setPassword, showPasswordModal, joinWithPassword, passwordError} = useJoinGame(params.gameId ?? "")
   const {me, opponents, sortedPlayers, gameStatus, gameWord, gameConfig} = useGameState()
-
 
   const voteRematch = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     e.stopPropagation()
@@ -43,6 +44,7 @@ export default function Game() {
           return
         
         case "ok":
+          setMyGuesses(response.guesses)
           setGuessError("")
           setCurrentGuess("")
           setCursorIndex(0)
@@ -111,7 +113,7 @@ export default function Game() {
           <p className="w-full text-center truncate">{`${me.username} (${me.score.total})`}</p>
           <Board 
             currentGuess={currentGuess}
-            playerGuesses={me.guesses}
+            playerGuesses={myGuesses}
             maxGuesses={gameConfig.maxGuesses}
             cursorIndex={cursorIndex}
             setCursorIndex={setCursorIndex}
