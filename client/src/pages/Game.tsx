@@ -30,7 +30,7 @@ export default function Game() {
 
   const submitGuess = (guess: string) => {
     socket.emit("submit_guess", guess, (response) => {
-      switch (response.status) {
+      switch (response) {
         case "incorrect_length":
           setGuessError("A palavra deve ter 5 letras")
           setErrorShake(true)

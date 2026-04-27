@@ -26,11 +26,4 @@ export type GameState = {
 
 export type JoinGameResponse = "ok" | "not_found" | "full" | "already_started" | "requires_password" | "invalid_password"
 
-export type SubmitGuessRespone = 
-  {status: "ok", guesses: GuessResult[]} 
-  | {status: "not_on_game"} 
-  | {status: "game_not_playing"} 
-  | {status: "player_already_won"} 
-  | {status: "guess_limit_reached"} 
-  | {status: "incorrect_length"} 
-  | {status: "not_on_wordlist"}
+export type SubmitGuessRespone = "ok" |  "not_on_game" |  "game_not_playing" |  "player_already_won" |  "guess_limit_reached" |  "incorrect_length" |  "not_on_wordlist"

@@ -57,7 +57,7 @@ export const registerSocketHandlers = (io: Server<ClientToServerEvents, ServerTo
       const result = game.submitGuess(socket.id, guess)
       callback(result)
 
-      if (result.status === "ok") {
+      if (result === "ok") {
         emitGameState(game.id)
       }
     })

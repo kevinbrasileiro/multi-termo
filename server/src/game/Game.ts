@@ -93,19 +93,16 @@ export class Game {
 
   submitGuess(playerId: string, guess: string): SubmitGuessRespone {
     const player = this.players[playerId]
-    if (!player) return {status: "not_on_game"}
+    if (!player) return  "not_on_game"
 
-    if (this.status !== "playing") return {status: "game_not_playing"}
-    
-    if (player.win) return {status: "player_already_won"}
-
-    if (player.guesses.length >= this.config.maxGuesses) return {status: "guess_limit_reached"}
+    if (this.status !== "playing") return  "game_not_playing"
+    if (player.win) return  "player_already_won"
+    if (player.guesses.length >= this.config.maxGuesses) return  "guess_limit_reached"
 
     const normalizedGuess = guess.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase()
     
-    if (normalizedGuess.length !== 5) return {status: "incorrect_length"}
-
-    if (!guessExists(normalizedGuess)) return {status: "not_on_wordlist"}
+    if (normalizedGuess.length !== 5) return  "incorrect_length"
+    if (!guessExists(normalizedGuess)) return  "not_on_wordlist"
 
     const result = evaluateGuess(normalizedGuess, this.word)
     player.guesses.push(result)
@@ -128,7 +125,7 @@ export class Game {
       }
     }
 
-    return {status: "ok", guesses: player.guesses}
+    return "ok"
   }
 
   private checkAndSortWinners() {
