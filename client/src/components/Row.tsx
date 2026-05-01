@@ -4,7 +4,7 @@ type RowProps = {
   guess: GuessResult
   cursorIndex: number
   onCellClick?: (index: number) => void
-  size: "sm" | "md" | "lg"
+  size: "sm" | "md" | "lg" | "title"
 }
 
 export default function Row({guess, cursorIndex, onCellClick, size = "lg"}: RowProps) {
@@ -19,6 +19,7 @@ export default function Row({guess, cursorIndex, onCellClick, size = "lg"}: RowP
     sm: "text-2xl size-8",
     md: "text-3xl size-12",
     lg: "text-5xl size-20",
+    title: "text-6xl size-24"
   }
 
   return (

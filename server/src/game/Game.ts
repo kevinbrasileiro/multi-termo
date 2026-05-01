@@ -33,7 +33,7 @@ export class Game {
 
   private createPlayer(username: string): PlayerInfo {
     return {
-      username,
+      username: username || `Anonymous${Math.floor(Math.random() * 1000) + 1}`,
       guesses: [],
       score: {round: 0, total: 0},
       win: null,

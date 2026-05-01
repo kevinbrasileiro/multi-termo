@@ -7,6 +7,7 @@ import { getUsername } from "../main"
 import type { GameConfig } from "../../../server/src/game/types"
 import Button from "../components/generic/Button"
 import Modal from "../components/Modal"
+import Row from "../components/Row"
 
 export default function App() {
   const [gameConfig, setGameConfig] = useState<GameConfig>({maxPlayers: 2, maxGuesses: 6, mode: "guesses", password: null})
@@ -18,6 +19,7 @@ export default function App() {
   const navigate = useNavigate()
 
   const createGame = () => {
+    if (!username.trim()) return
     socket.emit("create_game", username, gameConfig, (gameId) => {
       navigate(`/game/${gameId}`)
     })
@@ -46,18 +48,22 @@ export default function App() {
       
       <div className="flex flex-col justify-center items-center -mt-24">
         <div className="flex">
-          <div className="flex m-1 border-wrong-light border rounded-sm justify-center items-center font-extrabold size-24 text-6xl bg-present">M</div>
-          <div className="flex m-1 border-wrong-light border rounded-sm justify-center items-center font-extrabold size-24 text-6xl bg-dark">U</div>
-          <div className="flex m-1 border-wrong-light border rounded-sm justify-center items-center font-extrabold size-24 text-6xl bg-dark">L</div>
-          <div className="flex m-1 border-wrong-light border rounded-sm justify-center items-center font-extrabold size-24 text-6xl bg-present">T</div>
-          <div className="flex m-1 border-wrong-light border rounded-sm justify-center items-center font-extrabold size-24 text-6xl bg-dark">I</div>
+          <Row size="title" cursorIndex={-1} guess={[
+            {letter: "M", result: "present"},
+            {letter: "U", result: "wrong"},
+            {letter: "L", result: "wrong"},
+            {letter: "T", result: "present"},
+            {letter: "I", result: "wrong"},
+          ]}/>
         </div>
         <div className="flex">
-          <div className="flex m-1 border-wrong-light border rounded-sm justify-center items-center font-extrabold size-24 text-6xl bg-correct">T</div>
-          <div className="flex m-1 border-wrong-light border rounded-sm justify-center items-center font-extrabold size-24 text-6xl bg-dark">E</div>
-          <div className="flex m-1 border-wrong-light border rounded-sm justify-center items-center font-extrabold size-24 text-6xl bg-dark">R</div>
-          <div className="flex m-1 border-wrong-light border rounded-sm justify-center items-center font-extrabold size-24 text-6xl bg-correct">M</div>
-          <div className="flex m-1 border-wrong-light border rounded-sm justify-center items-center font-extrabold size-24 text-6xl bg-dark">O</div>
+          <Row size="title" cursorIndex={-1} guess={[
+            {letter: "T", result: "correct"},
+            {letter: "E", result: "wrong"},
+            {letter: "R", result: "wrong"},
+            {letter: "M", result: "correct"},
+            {letter: "O", result: "wrong"},
+          ]}/>
         </div>
       <p className="max-w-md text-center text-lg tracking-widest mt-1 opacity-50">Crie ou entre numa sala e jogue TERMO com seus amigos em tempo real!</p>
       </div>
@@ -73,19 +79,19 @@ export default function App() {
         />
 
         <div className="w-full flex gap-2">
-          <Button variant="primary" size="md" fullWidth onClick={() => setShowCreateModal(true)}>Criar Jogo</Button>
-          <Button variant="primary" size="md" fullWidth onClick={redirectToRandomGame}>Entrar Jogo</Button>
+          <Button variant="primary" size="md" fullWidth onClick={() => setShowCreateModal(true)} disabled={!username.trim()}>Criar Jogo</Button>
+          <Button variant="primary" size="md" fullWidth onClick={redirectToRandomGame} disabled={!username.trim()}>Buscar Jogo</Button>
         </div>
           {joinError && (
             <p className="absolute top-full left-1/2 -translate-x-1/2 mt-1 text-xs text-danger">{joinError}</p>
           )}
       </div>
 
-      <div className="absolute bottom-0 mb-4 left-1/2 -translate-x-1/2 text-xs opacity-50 flex items-center justify-center gap-x-8">
+      <footer className="absolute bottom-4 w-full text-xs opacity-50 flex items-center justify-center gap-x-8">
+        <a href="https://term.ooo" className="cursor-pointer hover:underline" target="_blank">Termo</a>
         <a href="https://github.com/kevinbrasileiro" className="cursor-pointer hover:underline" target="_blank">Kevin Brasileiro</a>
-        <a href="https://term.ooo" className="cursor-pointer hover:underline" target="_blank">TERMO</a>
         <a href="https://github.com/kevinbrasileiro/multi-termo/issues" className="cursor-pointer hover:underline" target="_blank">Feedback</a>
-      </div>
+      </footer>
 
       <Modal isOpen={showCreateModal} handleOutsideClick={() => setShowCreateModal(false)}>
         <div className="w-full h-full flex flex-col gap-4 items-center">
@@ -111,16 +117,19 @@ export default function App() {
             />
           </div>
 
-          <Radio 
-            name="mode"
-            label="Modo de Jogo"
-            value={gameConfig.mode}
-            onChange={(option) => handleGameConfigChange("mode", option)}
-            options={[
-              {label: "Tentativas", value: "guesses"},
-              {label: "Tempo", value: "timed"},
-            ]}
-          />
+          <div className="w-full">
+            <Radio 
+              name="mode"
+              label="Modo de Jogo"
+              value={gameConfig.mode}
+              onChange={(option) => handleGameConfigChange("mode", option)}
+              options={[
+                {label: "Tentativas", value: "guesses"},
+                {label: "Tempo", value: "timed"},
+              ]}
+            />
+            <p className="text-xs opacity-50 mt-1">{gameConfig.mode === "guesses" ? "O jogador com menor número de tentativas ganha" : "O jogador mais rápido ganha"}</p>
+          </div>
 
           <div className="w-full">
             <Input 
