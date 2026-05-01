@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react"
 import { socket } from "../socket"
-import { useParams } from "react-router"
+import { useNavigate, useParams } from "react-router"
 import Board from "../components/Board"
 import Modal from "../components/Modal"
 import { useJoinGame } from "../hooks/useJoinGame"
@@ -18,8 +18,9 @@ export default function Game() {
   const [clipboardNotification, setClipboardNotification] = useState(false)
 
   const params = useParams()
+  const navigate = useNavigate()
 
-  const {password, setPassword, showPasswordModal, joinWithPassword, passwordError} = useJoinGame(params.gameId ?? "")
+  const {password, setPassword, showPasswordModal, joinWithPassword, passwordError, joinError} = useJoinGame(params.gameId ?? "")
   const {me, opponents, sortedPlayers, gameStatus, gameWord, gameConfig} = useGameState()
 
 
@@ -186,6 +187,13 @@ export default function Game() {
             label="Senha"
           />
           <Button className="w-1/3" onClick={joinWithPassword}>Entrar</Button>
+        </div>
+      </Modal>
+
+      <Modal isOpen={!!joinError}>
+        <div className="w-full flex flex-col items-center gap-4">
+          <p className="text-danger text-center text-lg tracking-widest">{joinError}</p>
+          <Button className="w-1/3" onClick={() => navigate("/")}>Voltar</Button>
         </div>
       </Modal>
 

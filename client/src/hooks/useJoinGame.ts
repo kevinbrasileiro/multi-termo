@@ -1,15 +1,15 @@
 import { useCallback, useEffect, useState } from "react";
-import { useNavigate } from "react-router";
 import { socket } from "../socket";
 import { getUsername } from "../main";
 
 export function useJoinGame(gameId: string) {
-  const navigate = useNavigate()
 
   const [showPasswordModal, setShowPasswordModal] = useState(false)
 
   const [password, setPassword] = useState("")
   const [passwordError, setPasswordError] = useState("")
+
+  const [joinError, setJoinError] = useState("")
 
   const attemptJoin = useCallback((password: string | null) => {
     socket.emit("join_game", gameId, getUsername(), password, (response) => {
@@ -27,15 +27,22 @@ export function useJoinGame(gameId: string) {
         case "invalid_password":
           setPasswordError("Senha Incorreta")
           return
-        
-        default:
-          console.error(response)
-          navigate("/")
+
+        case "full":
+          setJoinError("O jogo está cheio")
+          return
+
+        case "already_started":
+          setJoinError("O jogo já começou")
           return
         
+        case "not_found":
+          setJoinError("O jogo não pôde ser encontrado")
+          return
+                
       }
     })
-  }, [gameId, navigate])
+  }, [gameId])
 
   useEffect(() => {
     if (!gameId) return
@@ -54,6 +61,7 @@ export function useJoinGame(gameId: string) {
     setPassword,
     joinWithPassword,
 
-    passwordError
+    passwordError,
+    joinError
   }
 }

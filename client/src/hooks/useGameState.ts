@@ -5,7 +5,7 @@ import type { GameConfig, GameState, PlayerInfo } from "../../../server/src/game
 export function useGameState() {
     const [players, setPlayers] = useState<Record<string, PlayerInfo>>({})
 
-    const [gameStatus, setGameStatus] = useState("waiting")
+    const [gameStatus, setGameStatus] = useState("")
     const [gameWord, setGameWord] = useState("")
 
     const [gameConfig, setGameConfig] = useState<GameConfig>({maxGuesses: 6, maxPlayers: 2, mode: "guesses", password: null})
