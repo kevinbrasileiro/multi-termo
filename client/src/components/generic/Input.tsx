@@ -17,6 +17,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
       className = "",
       value,
       onChange,
+      disabled = false,
       ...props
     },
     ref
@@ -24,11 +25,12 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     const inputClasses = 
     `border-wrong hover:border-correct bg-dark ${props.type === "number" ? "px-0" : "px-3"} py-2 text-base focus:outline-none rounded-lg border-2 focus:border-correct transition-colors w-full
     ${error ? "border-danger" : ""}
+    ${disabled ? "opacity-50 cursor-not-allowed" : ""}
     ${props.type === "number" ? "[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" : ""}
     ${className}`
 
     return (
-      <div className="w-full">
+      <div className={`w-full ${disabled ? "opacity-50" : ""}`}>
       {label && (
         <div className="flex justify-center">
           <div className="relative">
@@ -44,6 +46,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           value={value}
           onChange={onChange}
           className={inputClasses}
+          disabled={disabled}
           {...(props as React.InputHTMLAttributes<HTMLInputElement>)}
         />
       </div>

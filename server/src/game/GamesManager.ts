@@ -13,7 +13,7 @@ class GamesManager {
 
   getRandomPublicGame() {
     const publicGames = [...this.games].filter(([_, game]) => {
-      return game.config.password === null && game.status === "waiting"
+      return !game.config.private && game.config.password === null && game.status === "waiting"
     })
 
     const randomGame = publicGames[Math.floor(Math.random() * publicGames.length)]

@@ -8,9 +8,10 @@ import type { GameConfig } from "../../../server/src/game/types"
 import Button from "../components/generic/Button"
 import Modal from "../components/Modal"
 import Row from "../components/Row"
+import { ToggleSwitch } from "../components/generic/ToggleSwitch"
 
 export default function App() {
-  const [gameConfig, setGameConfig] = useState<GameConfig>({maxPlayers: 2, maxGuesses: 6, mode: "guesses", password: null})
+  const [gameConfig, setGameConfig] = useState<GameConfig>({maxPlayers: 2, maxGuesses: 6, mode: "guesses", private: true, password: null})
   const [username, setUsername] = useState(getUsername())
 
   const [showCreateModal, setShowCreateModal] = useState(false)
@@ -117,7 +118,7 @@ export default function App() {
             />
           </div>
 
-          <div className="w-full">
+          {gameConfig.maxPlayers >= 2 && <div className="w-full">
             <Radio 
               name="mode"
               label="Modo de Jogo"
@@ -129,17 +130,25 @@ export default function App() {
               ]}
             />
             <p className="text-xs opacity-50 mt-1">{gameConfig.mode === "guesses" ? "O jogador com menor número de tentativas ganha" : "O jogador mais rápido ganha"}</p>
-          </div>
+          </div>}
 
-          <div className="w-full">
+          {gameConfig.maxPlayers >= 2 && <div className="w-full flex items-center gap-x-4">
+            <ToggleSwitch 
+              checked={gameConfig.private}
+              onChange={(e) => {
+                handleGameConfigChange("private", e.target.checked)
+                handleGameConfigChange("password", "")
+              }}
+              label="Privado?"
+            />
             <Input 
               type="password"
               value={gameConfig.password || ""}
               onChange={(e) => handleGameConfigChange("password", e.target.value)}
               label="Senha"
+              disabled={!gameConfig.private || gameConfig.maxPlayers <= 1}
             />
-            <p className="text-xs opacity-50 mt-1">Deixar vazio fará o jogo ser público</p>
-          </div>
+          </div>}
 
           <Button onClick={createGame} size="lg" fullWidth>Criar Jogo</Button>
 

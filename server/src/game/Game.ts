@@ -18,10 +18,13 @@ export class Game {
     this.id = id
     
     this.config = {
-      ...config,
       maxPlayers: Math.max(1, Math.min(MAX_ALLOWED_PLAYERS, config.maxPlayers)),
       maxGuesses: Math.max(MIN_ALLOWED_GUESSES, Math.min(MAX_ALLOWED_GUESSES, config.maxGuesses)),
-      password: config.password ? createHash("sha256").update(config.password).digest("hex") : null
+      mode: config.mode || "guesses",
+      private: config.private,
+      password: (config.password && config.maxPlayers >= 2 && config.private)
+      ? createHash("sha256").update(config.password).digest("hex") 
+      : null
     }
 
     this.players[playerId] = this.createPlayer(username)

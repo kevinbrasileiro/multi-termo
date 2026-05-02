@@ -14,6 +14,7 @@ export type GameConfig = {
   maxPlayers: number
   maxGuesses: number
   mode: "timed" | "guesses"
+  private: boolean
   password: string | null
 }
 
