@@ -8,7 +8,7 @@ export function useGameState() {
     const [gameStatus, setGameStatus] = useState("")
     const [gameWord, setGameWord] = useState("")
 
-    const [gameConfig, setGameConfig] = useState<GameConfig>({maxGuesses: 6, maxPlayers: 2, mode: "guesses", password: null})
+    const [gameConfig, setGameConfig] = useState<GameConfig>({maxGuesses: 6, maxPlayers: 2, mode: "guesses", private: true, password: null})
 
     const me = socket.id ? players[socket.id] : undefined
     const opponents = useMemo(() => {
@@ -27,7 +27,7 @@ export function useGameState() {
       setPlayers(gameState.players)
       setGameStatus(gameState.status)
       setGameWord(gameState.word)
-      setGameConfig({ ...gameState.config })
+      setGameConfig(gameState.config)
     }
 
     socket.on("update_game_state", handler)

@@ -3,7 +3,6 @@ import { socket } from "../socket";
 import { getUsername } from "../main";
 
 export function useJoinGame(gameId: string) {
-
   const [showPasswordModal, setShowPasswordModal] = useState(false)
 
   const [password, setPassword] = useState("")
