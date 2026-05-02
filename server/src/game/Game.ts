@@ -13,6 +13,7 @@ export class Game {
   word = ""
   status: "waiting" | "playing" | "finished" = "waiting"
   config: GameConfig
+  lastActivity: number = Date.now()
 
   constructor(id: string, playerId: string, username: string, config: GameConfig) {
     this.id = id
@@ -32,6 +33,10 @@ export class Game {
     if (this.config.maxPlayers <= 1) {
       this.start()
     }
+  }
+
+  private touch() {
+    this.lastActivity = Date.now()
   }
 
   private createPlayer(username: string): PlayerInfo {
@@ -72,6 +77,8 @@ export class Game {
   }
 
   start() {
+    this.touch()
+
     Object.values(this.players).forEach((player => {
       player.guesses = []
       player.win = null
@@ -84,6 +91,8 @@ export class Game {
   }
 
   voteRematch(playerId: string) {
+    this.touch()
+    
     const player = this.players[playerId]
     if (!player) return
 
@@ -95,6 +104,8 @@ export class Game {
   }
 
   submitGuess(playerId: string, guess: string): SubmitGuessRespone {
+    this.touch()
+    
     const player = this.players[playerId]
     if (!player) return  "not_on_game"
 

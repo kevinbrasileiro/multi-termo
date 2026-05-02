@@ -29,7 +29,7 @@ export default function Game() {
     socket.emit("vote_rematch")
   }
 
-  const submitGuess = (guess: string) => {
+  const submitGuess = useCallback((guess: string) => {
     socket.emit("submit_guess", guess, (response) => {
       switch (response) {
         case "incorrect_length":
@@ -50,11 +50,12 @@ export default function Game() {
           return
 
         default:
-          console.log(response)
+          console.error(response)
+          navigate("/")
           return
       }
     })
-  }
+  }, [navigate])
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     if (gameStatus !== "playing" || me?.win) {
@@ -95,7 +96,7 @@ export default function Game() {
         setCursorIndex((prev) => Math.min(4, prev + 1))  
         }
     }
-  }, [currentGuess, cursorIndex, gameStatus, me])
+  }, [currentGuess, cursorIndex, gameStatus, me, submitGuess])
 
   useEffect(() => {
     window.addEventListener("keydown", handleKeyDown)

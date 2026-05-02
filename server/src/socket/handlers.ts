@@ -52,7 +52,7 @@ export const registerSocketHandlers = (io: Server<ClientToServerEvents, ServerTo
 
     socket.on("submit_guess", (guess, callback) => {
       const game = gamesManager.getGame(socket.data.gameId)
-      if (!game) return
+      if (!game) return callback("not_found")
 
       const result = game.submitGuess(socket.id, guess)
       callback(result)

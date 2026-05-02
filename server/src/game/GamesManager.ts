@@ -49,6 +49,18 @@ class GamesManager {
       this.games.delete(gameId)
     }
   }
+
+  cleanupInactiveGames(timeout: number) {
+    const now = Date.now()
+
+    for (const [id, game] of this.games) {
+      if (now - game.lastActivity > timeout) {
+        console.log(`deleting game ${id} due to inactivity`)
+        this.games.delete(id)
+      }
+    }
+    
+  }
 }
 
 export const gamesManager = new GamesManager()
