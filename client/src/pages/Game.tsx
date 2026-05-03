@@ -21,7 +21,7 @@ export default function Game() {
   const navigate = useNavigate()
 
   const {password, setPassword, showPasswordModal, joinWithPassword, passwordError, joinError} = useJoinGame(params.gameId ?? "")
-  const {me, opponents, sortedPlayers, gameStatus, gameWord, gameConfig} = useGameState()
+  const {me, opponents, sortedPlayers, gameStatus, gameWord, gameConfig, gameStartedAt} = useGameState()
 
 
   const voteRematch = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
@@ -205,7 +205,11 @@ export default function Game() {
             <h2 className={`text-2xl font-bold text-center ${me?.win ? "text-correct" : "text-danger"}`}>RESULTADOS</h2>
             {me?.win ? (
             <p className="text-center">
-              Você acertou a palavra <span className="font-bold">{gameWord}</span> em {me.guesses.length} tentativas
+              Você acertou a palavra <span className="font-bold">{gameWord}</span> em 
+              {gameConfig.mode === "guesses" 
+              ? ` ${me.guesses.length} tentativas` 
+              : ` ${((me.win - gameStartedAt) / 1000).toFixed(2)} segundos`
+              }
             </p>
             ) : (
             <p className="text-center">

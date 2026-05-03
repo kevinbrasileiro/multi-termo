@@ -6,7 +6,7 @@ export type PlayerInfo = {
   username: string
   guesses: GuessResult[]
   score: { round: number; total: number }
-  win: number | null
+  win: number | null // timestamp
   votedRematch: boolean
 }
 
@@ -23,6 +23,7 @@ export type GameState = {
   status: Game["status"],
   word: Game["word"]
   config: GameConfig,
+  startedAt: Game["startedAt"]
 }
 
 export type JoinGameResponse = "ok" | "not_found" | "full" | "already_started" | "requires_password" | "invalid_password"

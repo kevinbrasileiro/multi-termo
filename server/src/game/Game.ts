@@ -13,7 +13,8 @@ export class Game {
   word = ""
   status: "waiting" | "playing" | "finished" = "waiting"
   config: GameConfig
-  lastActivity: number = Date.now()
+  startedAt: number = 0
+  lastActivityAt: number = Date.now()
 
   constructor(id: string, playerId: string, username: string, config: GameConfig) {
     this.id = id
@@ -36,7 +37,7 @@ export class Game {
   }
 
   private touch() {
-    this.lastActivity = Date.now()
+    this.lastActivityAt = Date.now()
   }
 
   private createPlayer(username: string): PlayerInfo {
@@ -78,6 +79,7 @@ export class Game {
 
   start() {
     this.touch()
+    this.startedAt = Date.now()
 
     Object.values(this.players).forEach((player => {
       player.guesses = []
@@ -153,39 +155,58 @@ export class Game {
 
     if (finishedPlayers.length < players.length) return
 
-    return finishedPlayers.sort((a, b) => {
-      const playerA = a[1]
-      const playerB = b[1]
+    if (this.config.mode === "guesses") {
+      return finishedPlayers.sort((a, b) => {
+        return a[1].guesses.length - b[1].guesses.length
+      })
+    }
 
-      if (this.config.mode === "guesses" && (playerA.guesses.length !== playerB.guesses.length)) {
-        return playerA.guesses.length - playerB.guesses.length
-      }
-
-      if (playerA.win !== null && playerB.win !== null) {
-        return playerA.win - playerB.win
-      }
-
-      if (playerA.win !== null) return -1
-      if (playerB.win !== null) return 1
-
-      return 0
-    })
+    if (this.config.mode === "timed") {
+      return finishedPlayers.sort((a, b) => {
+        return (a[1].win ?? Infinity) - (b[1].win ?? Infinity)
+      })
+    }
   }
 
   private scorePlayers(sortedPlayers: [string, PlayerInfo][]) {
-    sortedPlayers.forEach((player, i) => {
-      if (player[1].win) {
-        player[1].score.round = sortedPlayers.length - 1 - i
-        player[1].score.total += sortedPlayers.length - i - 1
-      } else {
-        player[1].score.round = 0
+    let scoreToGive = sortedPlayers.length - 1
+    let previousGuessAmount = 0
+
+    if (this.config.mode === "timed") {
+      sortedPlayers.forEach(([_, player]) => {
+        if (!player.win) {
+          player.score.round = 0
+          return
+        }
+
+        player.score.round += scoreToGive
+        player.score.total += scoreToGive
+        scoreToGive--
+      })
+      return
+    }
+
+    sortedPlayers.forEach(([_, player]) => {
+      if (!player.win) {
+        player.score.round = 0
+        return
+      } 
+
+      if (previousGuessAmount == 0) {
+        previousGuessAmount = player.guesses.length
+      } 
+      
+      if (player.guesses.length !== previousGuessAmount) {
+        scoreToGive -= 1
+        previousGuessAmount = player.guesses.length
       }
+
+      player.score.round += scoreToGive
+      player.score.total += scoreToGive
     })
   }
 
   getFormattedGameState(playerId: string): GameState {
-    console.dir(this)
-
     return {
       players: Object.fromEntries(
         Object.entries(this.players).map(([id, player]) => {
@@ -204,6 +225,7 @@ export class Game {
       status: this.status,
       word: this.status === "finished" ? this.word : "",
       config: {...this.config, password: ""},
+      startedAt: this.startedAt,
     }
   }
 }

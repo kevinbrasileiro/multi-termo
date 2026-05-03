@@ -1,33 +1,31 @@
 import { useEffect, useMemo, useState } from "react"
 import { socket } from "../socket"
-import type { GameConfig, GameState, PlayerInfo } from "../../../server/src/game/types"
+import type { GameState,} from "../../../server/src/game/types"
 
 export function useGameState() {
-    const [players, setPlayers] = useState<Record<string, PlayerInfo>>({})
+    const [gameState, setGameState] = useState<GameState>({
+      players: {},
+      status: "waiting",
+      word: "",
+      config: {maxPlayers: 2, maxGuesses: 6, mode: "guesses", private: true, password: ""},
+      startedAt: 0
+    })
 
-    const [gameStatus, setGameStatus] = useState("")
-    const [gameWord, setGameWord] = useState("")
-
-    const [gameConfig, setGameConfig] = useState<GameConfig>({maxGuesses: 6, maxPlayers: 2, mode: "guesses", private: true, password: null})
-
-    const me = socket.id ? players[socket.id] : undefined
+    const me = socket.id ? gameState.players[socket.id] : undefined
     const opponents = useMemo(() => {
-      return Object.entries(players).filter(([id]) => id !== socket.id)
-    }, [players])
+      return Object.entries(gameState.players).filter(([id]) => id !== socket.id)
+    }, [gameState.players])
 
     const sortedPlayers = useMemo(() => {
-      if (gameStatus !== "finished") return []
+      if (gameState.status !== "finished") return []
 
-      return Object.entries(players).sort((a, b) => b[1].score.total - a[1].score.total)
+      return Object.entries(gameState.players).sort((a, b) => b[1].score.total - a[1].score.total)
 
-    }, [players, gameStatus])
+    }, [gameState.players, gameState.status])
 
   useEffect(() => {
     const handler = (gameState: GameState) => {
-      setPlayers(gameState.players)
-      setGameStatus(gameState.status)
-      setGameWord(gameState.word)
-      setGameConfig(gameState.config)
+      setGameState(gameState)
     }
 
     socket.on("update_game_state", handler)
@@ -43,9 +41,9 @@ export function useGameState() {
     opponents,
     sortedPlayers,
 
-    gameStatus,
-    gameWord,
-    gameConfig,
-
+    gameStatus: gameState.status,
+    gameWord: gameState.word,
+    gameConfig: gameState.config,
+    gameStartedAt: gameState.startedAt,
   }
 }
