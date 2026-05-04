@@ -121,7 +121,7 @@ export class Game {
 
     player.votedRematch = true
 
-    const allVoted = Object.values(this.players).filter(player => player.votedRematch || !player.connected)
+    const allVoted = Object.values(this.players).every(player => player.votedRematch || !player.connected)
 
     if (allVoted) this.start()
   }
