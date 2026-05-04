@@ -134,7 +134,7 @@ export default function Game() {
         <div className="flex flex-wrap justify-center gap-6 max-w-6xl py-4">
           {opponents.map(([id, player]) => (
             <div key={id} className={`flex flex-col items-center ${(player.win || player.guesses.length >= gameConfig.maxGuesses )? "opacity-50" : ""} ${opponents.length <= 6 ? "w-70" : "w-50"}`}>
-              <p className="w-full text-center truncate">{`${player.username} (${player.score.total})`}</p>
+              <p className={`w-full text-center truncate ${player.connected ? "" : "text-danger"}`}>{`${player.username} (${player.score.total})`}</p>
               <Board
                 playerGuesses={player.guesses}
                 maxGuesses={gameConfig.maxGuesses}

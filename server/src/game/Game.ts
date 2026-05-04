@@ -7,6 +7,8 @@ const MAX_ALLOWED_PLAYERS = 99
 const MIN_ALLOWED_GUESSES = 3
 const MAX_ALLOWED_GUESSES = 9
 
+const DISCONNECTION_TIMEOUT = 1000 * 30 // 30s
+
 export class Game {
   id: string
   players: Record<string, PlayerInfo> = {}
@@ -44,7 +46,8 @@ export class Game {
       guesses: [],
       score: {round: 0, total: 0},
       win: null,
-      votedRematch: false
+      votedRematch: false,
+      connected: true
     }
   }
 
@@ -78,9 +81,21 @@ export class Game {
   }
 
   leave(playerId: string) {
-    delete this.players[playerId]
+    const player = this.players[playerId]
+    if (!player) return
 
-    if (Object.keys(this.players).length === 1) this.status = "waiting"
+    player.connected = false
+    const sortedWinners = this.checkAndSortWinners()
+    if (sortedWinners) {
+      this.scorePlayers(sortedWinners)
+      this.status = "finished"
+    }
+
+    setTimeout(() => {
+      if (!player.connected) {
+        delete this.players[playerId]
+      }
+    }, DISCONNECTION_TIMEOUT)
   }
 
   start() {
@@ -106,7 +121,7 @@ export class Game {
 
     player.votedRematch = true
 
-    const allVoted = Object.values(this.players).every(player => player.votedRematch)
+    const allVoted = Object.values(this.players).filter(player => player.votedRematch || !player.connected)
 
     if (allVoted) this.start()
   }
@@ -156,7 +171,7 @@ export class Game {
     const players = Object.entries(this.players)
 
     const finishedPlayers = players.filter(([, player]) => {
-      return player.win !== null || player.guesses.length >= this.config.maxGuesses
+      return !player.connected || player.win !== null || player.guesses.length >= this.config.maxGuesses
     })
 
     if (finishedPlayers.length < players.length) return

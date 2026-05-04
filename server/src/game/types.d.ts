@@ -8,6 +8,7 @@ export type PlayerInfo = {
   score: { round: number; total: number }
   win: number | null // timestamp
   votedRematch: boolean
+  connected: boolean
 }
 
 export type GameConfig = {

@@ -45,7 +45,9 @@ class GamesManager {
 
     game.leave(playerId)
 
-    if (Object.keys(game.players).length <= 0) {
+    const allDisconnected = Object.values(game.players).every(player => !player.connected)
+
+    if (allDisconnected || Object.keys(game.players).length <= 0) {
       this.games.delete(gameId)
     }
   }
