@@ -21,7 +21,7 @@ export default function Game() {
   const navigate = useNavigate()
 
   const {password, setPassword, showPasswordModal, joinWithPassword, passwordError, joinError} = useJoinGame(params.gameId ?? "")
-  const {me, opponents, sortedPlayers, gameStatus, gameWord, gameConfig, gameStartedAt} = useGameState()
+  const {me, setMyGuesses, opponents, sortedPlayers, gameStatus, gameWord, gameConfig, gameStartedAt} = useGameState()
 
 
   const voteRematch = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
@@ -31,7 +31,7 @@ export default function Game() {
 
   const submitGuess = useCallback((guess: string) => {
     socket.emit("submit_guess", guess, (response) => {
-      switch (response) {
+      switch (response.status) {
         case "incorrect_length":
           setGuessError("A palavra deve ter 5 letras")
           setErrorShake(true)
@@ -44,6 +44,7 @@ export default function Game() {
           return
         
         case "ok":
+          setMyGuesses(response.guesses)
           setGuessError("")
           setCurrentGuess("")
           setCursorIndex(0)
@@ -55,7 +56,7 @@ export default function Game() {
           return
       }
     })
-  }, [navigate])
+  }, [navigate, setMyGuesses])
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     if (gameStatus !== "playing" || me?.win) {

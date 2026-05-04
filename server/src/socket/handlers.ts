@@ -52,12 +52,12 @@ export const registerSocketHandlers = (io: Server<ClientToServerEvents, ServerTo
 
     socket.on("submit_guess", (guess, callback) => {
       const game = gamesManager.getGame(socket.data.gameId)
-      if (!game) return callback("not_found")
+      if (!game) return callback({status: "not_found"})
 
       const result = game.submitGuess(socket.id, guess)
       callback(result)
 
-      if (result === "ok") {
+      if (result.status === "ok") {
         emitGameState(game.id)
       }
     })
@@ -74,12 +74,9 @@ export const registerSocketHandlers = (io: Server<ClientToServerEvents, ServerTo
       const game = gamesManager.getGame(gameId)
       if (!game) return
 
-      Object.keys(game.players).forEach((playerId) => {
-        const state = game.getFormattedGameState(playerId)
-        if (!state) return
+      const publicState = game.getPublicGameState()
 
-        io.to(playerId).emit("update_game_state", state)
-      })
+      io.to(gameId).emit("update_game_state", publicState)
     }
   })
 }

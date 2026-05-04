@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import { evaluateGuess, generateRandomWord, guessExists } from "./wordle.js";
-import type { GameConfig, GameState, JoinGameResponse, PlayerInfo, SubmitGuessRespone } from "./types.js";
+import type { GameConfig, GameState, JoinGameResponse, PlayerInfo, SubmitGuessResponse } from "./types.js";
 
 const MAX_ALLOWED_PLAYERS = 99
 
@@ -105,20 +105,20 @@ export class Game {
     if (allVoted) this.start()
   }
 
-  submitGuess(playerId: string, guess: string): SubmitGuessRespone {
+  submitGuess(playerId: string, guess: string): SubmitGuessResponse {
     this.touch()
     
     const player = this.players[playerId]
-    if (!player) return  "not_on_game"
+    if (!player) return {status: "not_on_game"}
 
-    if (this.status !== "playing") return  "game_not_playing"
-    if (player.win) return  "player_already_won"
-    if (player.guesses.length >= this.config.maxGuesses) return  "guess_limit_reached"
+    if (this.status !== "playing") return {status: "game_not_playing"}
+    if (player.win) return {status: "player_already_won"}
+    if (player.guesses.length >= this.config.maxGuesses) return {status: "guess_limit_reached"}
 
     const normalizedGuess = guess.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase()
     
-    if (normalizedGuess.length !== 5) return  "incorrect_length"
-    if (!guessExists(normalizedGuess)) return  "not_on_wordlist"
+    if (normalizedGuess.length !== 5) return {status: "incorrect_length"}
+    if (!guessExists(normalizedGuess)) return {status: "not_on_wordlist"}
 
     const result = evaluateGuess(normalizedGuess, this.word)
     player.guesses.push(result)
@@ -141,7 +141,7 @@ export class Game {
       }
     }
 
-    return "ok"
+    return {status: "ok", guesses: player.guesses}
   }
 
   private checkAndSortWinners() {
@@ -206,15 +206,13 @@ export class Game {
     })
   }
 
-  getFormattedGameState(playerId: string): GameState {
+  getPublicGameState(): GameState {
     return {
       players: Object.fromEntries(
         Object.entries(this.players).map(([id, player]) => {
-          const isOwner = id === playerId
-
           return [id,
             {...player, guesses: player.guesses.map((guess) =>
-              isOwner ? guess : guess.map((guess) => ({
+              guess.map((guess) => ({
                 ...guess,
                 letter: this.status === "playing" ? "" : guess.letter, 
               }))
