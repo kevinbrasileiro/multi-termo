@@ -16,7 +16,7 @@ export class Game {
   startedAt: number = 0
   lastActivityAt: number = Date.now()
 
-  constructor(id: string, playerId: string, username: string, config: GameConfig) {
+  constructor(id: string, config: GameConfig) {
     this.id = id
     
     this.config = {
@@ -28,8 +28,6 @@ export class Game {
       ? createHash("sha256").update(config.password).digest("hex") 
       : null
     }
-
-    this.players[playerId] = this.createPlayer(username)
 
     if (this.config.maxPlayers <= 1) {
       this.start()
@@ -51,7 +49,15 @@ export class Game {
   }
 
   join(playerId: string, username: string, password: string | null): JoinGameResponse {
-    if (this.players[playerId]) return "ok"
+    const existingPlayer = this.players[playerId]
+    
+    if (existingPlayer && !existingPlayer.connected) {
+      existingPlayer.connected = true
+      return "ok"
+    }
+    if (existingPlayer) return "already_joined"
+
+    if (this.players[playerId]) return "already_joined"
     if (Object.keys(this.players).length >= this.config.maxPlayers) return "full"
     if (this.status === "playing") return "already_started"
 

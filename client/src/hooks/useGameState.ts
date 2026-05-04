@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react"
-import { socket } from "../socket"
+import { getPlayerId, socket } from "../socket"
 import type { GuessResult, GameState,} from "../../../server/src/game/types"
 
 export function useGameState() {
@@ -13,10 +13,12 @@ export function useGameState() {
 
   const [myGuesses, setMyGuesses] = useState<GuessResult[]>([])
 
-  const me = socket.id ? gameState.players[socket.id] : undefined
+  const playerId = getPlayerId()
+  const me = gameState.players[playerId]
+
   const opponents = useMemo(() => {
-    return Object.entries(gameState.players).filter(([id]) => id !== socket.id)
-  }, [gameState.players])
+    return Object.entries(gameState.players).filter(([id]) => id !== playerId)
+  }, [gameState.players, playerId])
 
   const sortedPlayers = useMemo(() => {
     if (gameState.status !== "finished") return []

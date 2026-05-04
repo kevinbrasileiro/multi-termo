@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { socket } from "../socket";
 import { getUsername } from "../main";
 
@@ -31,6 +31,10 @@ export function useJoinGame(gameId: string) {
           setJoinError("O jogo está cheio")
           return
 
+        case "already_joined":
+          setJoinError("Você já está nesse jogo")
+          return
+
         case "already_started":
           setJoinError("O jogo já começou")
           return
@@ -43,10 +47,13 @@ export function useJoinGame(gameId: string) {
     })
   }, [gameId])
 
-  useEffect(() => {
-    if (!gameId) return
-    attemptJoin(null)
+  const hasJoinedRef = useRef(false)
 
+  useEffect(() => {
+    if (!gameId || hasJoinedRef.current) return
+
+    hasJoinedRef.current = true
+    attemptJoin(null)
   }, [gameId, attemptJoin])
 
   const joinWithPassword = () => {

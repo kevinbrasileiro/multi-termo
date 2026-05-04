@@ -21,7 +21,7 @@ export default function App() {
 
   const createGame = () => {
     if (!username.trim()) return
-    socket.emit("create_game", username, gameConfig, (gameId) => {
+    socket.emit("create_game", gameConfig, (gameId) => {
       navigate(`/game/${gameId}`)
     })
   }

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react"
-import { socket } from "../socket"
+import { getPlayerId, socket } from "../socket"
 import { useNavigate, useParams } from "react-router"
 import Board from "../components/Board"
 import Modal from "../components/Modal"
@@ -106,6 +106,13 @@ export default function Game() {
       window.removeEventListener("keydown", handleKeyDown)
     }
   }, [handleKeyDown])
+
+  useEffect(() => {
+    window.addEventListener("beforeunload", (e) => e.preventDefault())
+    window.addEventListener("popstate", () => {
+      socket.emit("leave_game")
+    })
+  })
 
   return (
     <div className="w-screen h-screen flex justify-center items-center gap-10 overflow-y-auto">
@@ -221,7 +228,7 @@ export default function Game() {
 
           <div className="flex flex-col gap-2 max-h-[60vh] overflow-y-auto px-4">
             {sortedPlayers.map(([id, player], index) => {
-              const isMe = id === socket.id
+              const isMe = id === getPlayerId()
 
               return (
                 <div key={id} className={

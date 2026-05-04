@@ -26,7 +26,7 @@ export type GameState = {
   startedAt: Game["startedAt"]
 }
 
-export type JoinGameResponse = "ok" | "not_found" | "full" | "already_started" | "requires_password" | "invalid_password"
+export type JoinGameResponse = "ok" | "already_joined" | "not_found" | "full" | "already_started" | "requires_password" | "invalid_password"
 
 export type SubmitGuessResponse =
   | { status: "ok"; guesses: GuessResult[] }

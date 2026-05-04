@@ -4,10 +4,11 @@ import { gamesManager } from "../game/GamesManager.js";
 
 export const registerSocketHandlers = (io: Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>) => {
   io.on("connection", (socket: Socket<ClientToServerEvents, ServerToClientEvents>) => {
+    socket.data.playerId = socket.handshake.auth.playerId
     socket.on("ping", () => console.log("PING received"))
 
-    socket.on("create_game", (username, config, callback) => {
-      const gameId = gamesManager.createGame(socket.id, username, config)
+    socket.on("create_game", (config, callback) => {
+      const gameId = gamesManager.createGame(config)
 
       callback(gameId)
       emitGameState(gameId)
@@ -17,7 +18,7 @@ export const registerSocketHandlers = (io: Server<ClientToServerEvents, ServerTo
       const game = gamesManager.getGame(gameId)
       if (!game) return callback("not_found")
 
-      const result = game.join(socket.id, username, password)
+      const result = game.join(socket.data.playerId, username, password)
 
       if (result !== "ok") {
         return callback(result)
@@ -42,19 +43,22 @@ export const registerSocketHandlers = (io: Server<ClientToServerEvents, ServerTo
       callback(publicGame?.id || "")
     })
 
-    socket.on("disconnect", () => {
+    const handleLeaveGame = () => {
       const gameId = socket.data.gameId
       if (!gameId) return
 
-      gamesManager.leaveGame(socket.id, gameId)
+      gamesManager.leaveGame(socket.data.playerId, gameId)
       emitGameState(gameId)
-    })
+    }
+
+    socket.on("disconnect", handleLeaveGame)
+    socket.on("leave_game", handleLeaveGame)
 
     socket.on("submit_guess", (guess, callback) => {
       const game = gamesManager.getGame(socket.data.gameId)
       if (!game) return callback({status: "not_found"})
 
-      const result = game.submitGuess(socket.id, guess)
+      const result = game.submitGuess(socket.data.playerId, guess)
       callback(result)
 
       if (result.status === "ok") {
@@ -66,7 +70,7 @@ export const registerSocketHandlers = (io: Server<ClientToServerEvents, ServerTo
       const game = gamesManager.getGame(socket.data.gameId)
       if (!game) return
 
-      game.voteRematch(socket.id)
+      game.voteRematch(socket.data.playerId)
       emitGameState(game.id)
     })
 
