@@ -28,16 +28,27 @@ export function useGameState() {
   }, [gameState.players, gameState.status])
 
   const lastGameAt = useRef(0)
+  const storageKey = useRef("")
   
   useEffect(() => {
     const updateGameState = (newGameState: GameState) => {
+      const newKey = `guesses:${newGameState.startedAt}`
 
       if (lastGameAt.current === 0) {
         lastGameAt.current = newGameState.startedAt
+        storageKey.current = newKey
+
+        const savedGuesses = window.localStorage.getItem(newKey)
+        if (savedGuesses) {
+          setMyGuesses(JSON.parse(savedGuesses))
+        }
       }
+
       if (lastGameAt.current !== newGameState.startedAt) {
+        localStorage.removeItem(storageKey.current)
         setMyGuesses([])
         lastGameAt.current = newGameState.startedAt
+        storageKey.current = newKey
       }
 
       setGameState(newGameState)
@@ -49,8 +60,13 @@ export function useGameState() {
       socket.off("update_game_state", updateGameState)
     }
   }, [])
-  
 
+  useEffect(() => {
+    if (!storageKey.current) return
+
+    localStorage.setItem(storageKey.current, JSON.stringify(myGuesses))
+  }, [myGuesses])
+  
   return {
     me: me ? {...me, guesses: myGuesses} : undefined,
     setMyGuesses,
