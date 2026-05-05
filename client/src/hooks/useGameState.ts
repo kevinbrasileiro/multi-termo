@@ -45,7 +45,12 @@ export function useGameState() {
       }
 
       if (lastGameAt.current !== newGameState.startedAt) {
-        localStorage.removeItem(storageKey.current)
+        Object.keys(localStorage).forEach(key => {
+          if (key.startsWith("guesses:") && key !== newKey) {
+            localStorage.removeItem(key)
+          }
+        })
+
         setMyGuesses([])
         lastGameAt.current = newGameState.startedAt
         storageKey.current = newKey
