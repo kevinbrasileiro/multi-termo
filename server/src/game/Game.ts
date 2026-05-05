@@ -189,7 +189,7 @@ export class Game {
   }
 
   private scorePlayers(sortedPlayers: [string, PlayerInfo][]) {
-    let scoreToGive = sortedPlayers.length - 1
+    let scoreToGive = Math.max(1, sortedPlayers.length - 1)
     let previousGuessAmount = 0
 
     if (this.config.mode === "timed") {
