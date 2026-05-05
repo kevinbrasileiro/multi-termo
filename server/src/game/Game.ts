@@ -30,10 +30,6 @@ export class Game {
       ? createHash("sha256").update(config.password).digest("hex") 
       : null
     }
-
-    if (this.config.maxPlayers <= 1) {
-      this.start()
-    }
   }
 
   private touch() {
@@ -90,6 +86,7 @@ export class Game {
       this.scorePlayers(sortedWinners)
       this.status = "finished"
     }
+    this.voteRematch(playerId)
 
     setTimeout(() => {
       if (!player.connected) {
