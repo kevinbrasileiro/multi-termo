@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { Input } from "../components/generic/Input"
-import { socket } from "../socket"
+import { getPlayerId, socket } from "../socket"
 import { useNavigate } from "react-router"
 import { Radio } from "../components/generic/Radio"
 import { getUsername } from "../main"
@@ -21,7 +21,7 @@ export default function App() {
 
   const createGame = () => {
     if (!username.trim()) return
-    socket.emit("create_game", gameConfig, (gameId) => {
+    socket.emit("create_game", getPlayerId(), gameConfig, (gameId) => {
       navigate(`/game/${gameId}`)
     })
   }

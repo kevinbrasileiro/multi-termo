@@ -9,7 +9,7 @@ export interface ServerToClientEvents {
 export interface ClientToServerEvents {
   ping: () => void
 
-  create_game: (config: GameConfig, callback: (gameId: string) => void) => void
+  create_game: (creatorId: string, config: GameConfig, callback: (gameId: string) => void) => void
   join_game: (gameId: string, username: string, password: string | null, callback: (res: JoinGameResponse) => void) => void
   get_random_game: (callback: (gameId: string) => void) => void
 

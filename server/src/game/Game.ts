@@ -12,13 +12,14 @@ const DISCONNECTION_TIMEOUT = 1000 * 30 // 30s
 export class Game {
   id: string
   players: Record<string, PlayerInfo> = {}
+  creatorId: string
   word = ""
   status: "waiting" | "playing" | "finished" = "waiting"
   config: GameConfig
   startedAt: number = 0
   lastActivityAt: number = Date.now()
 
-  constructor(id: string, config: GameConfig) {
+  constructor(id: string, creatorId: string, config: GameConfig) {
     this.id = id
     
     this.config = {
@@ -30,6 +31,8 @@ export class Game {
       ? createHash("sha256").update(config.password).digest("hex") 
       : null
     }
+
+    this.creatorId = creatorId
   }
 
   private touch() {
@@ -56,11 +59,10 @@ export class Game {
     }
     if (existingPlayer) return "already_joined"
 
-    if (this.players[playerId]) return "already_joined"
     if (Object.keys(this.players).length >= this.config.maxPlayers) return "full"
     if (this.status === "playing") return "already_started"
 
-    if (this.config.password) {
+    if (this.config.password && playerId !== this.creatorId) {
       if (!password) return "requires_password"
 
       const hashed = createHash("sha256").update(password).digest("hex")

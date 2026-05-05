@@ -20,7 +20,7 @@ class GamesManager {
     return randomGame?.[1]
   }
 
-  createGame(config: GameConfig): string {
+  createGame(creatorId: string, config: GameConfig): string {
     let gameId = ""
     for (let i = 0; i < GAMEID_CREATION_TRIES; i++) {
       const possibleId = Math.random().toString(36).substring(2, GAMEID_SIZE + 2)
@@ -33,7 +33,7 @@ class GamesManager {
 
     if (!gameId) throw new Error(`could not generate valid game id after ${GAMEID_CREATION_TRIES} tries`)
     
-    const game = new Game(gameId, config)
+    const game = new Game(gameId, creatorId, config)
     this.games.set(gameId, game)
 
     return gameId

@@ -7,8 +7,8 @@ export const registerSocketHandlers = (io: Server<ClientToServerEvents, ServerTo
     socket.data.playerId = socket.handshake.auth.playerId
     socket.on("ping", () => console.log("PING received"))
 
-    socket.on("create_game", (config, callback) => {
-      const gameId = gamesManager.createGame(config)
+    socket.on("create_game", (creatorId, config, callback) => {
+      const gameId = gamesManager.createGame(creatorId, config)
 
       callback(gameId)
       emitGameState(gameId)
