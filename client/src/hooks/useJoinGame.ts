@@ -9,9 +9,11 @@ export function useJoinGame(gameId: string) {
   const [passwordError, setPasswordError] = useState("")
 
   const [joinError, setJoinError] = useState("")
+  const [isJoining, setIsJoining] = useState(true)
 
   const attemptJoin = useCallback((password: string | null) => {
     socket.emit("join_game", gameId, getUsername(), password, (response) => {
+      setIsJoining(false)
       switch(response) {
 
         case "ok":
@@ -68,6 +70,7 @@ export function useJoinGame(gameId: string) {
     joinWithPassword,
 
     passwordError,
-    joinError
+    joinError,
+    isJoining
   }
 }
